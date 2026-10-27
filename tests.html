@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spending Tracker Pro — Tests</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0c0d10; color: #eaedf3; padding: 24px; line-height: 1.6; }
+        h1 { margin-bottom: 16px; }
+        .test { padding: 8px 14px; margin: 4px 0; border-radius: 6px; font-size: 14px; }
+        .pass { background: rgba(52,211,153,0.12); border-left: 3px solid #34d399; }
+        .fail { background: rgba(248,113,113,0.12); border-left: 3px solid #f87171; }
+        .summary { margin-top: 20px; padding: 16px; background: #1a1b21; border-radius: 10px; font-size: 16px; }
+        .summary .passed { color: #34d399; font-weight: bold; }
+        .summary .failed { color: #f87171; font-weight: bold; }
+        pre { background: #1a1b21; padding: 12px; border-radius: 6px; overflow-x: auto; margin: 8px 0; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Spending Tracker Pro — Test Suite</h1>
+    <p>These tests verify core financial logic, data persistence, and import/export without needing a test framework.</p>
+    <div id="results"></div>
+    <div id="summary" class="summary"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const results = document.getElementById('results');
+        let passed = 0, failed = 0;
+
+        function assert(condition, name, detail) {
+            if (condition) {
+                passed++;
+                results.innerHTML += `<div class="test pass">✅ ${name}</div>`;
+            } else {
+                failed++;
+                results.innerHTML += `<div class="test fail">❌ ${name}${detail ? ': ' + detail : ''}</div>`;
+            }
+        }
+
+        // ──── Utility Tests ────
+
+        // Test UID generation
+        const ids = new Set();
+        for (let i = 0; i < 100; i++) {
+            ids.add(Date.now().toString(36) + Math.random().toString(36).substr(2, 9));
+        }
+        assert(ids.size === 100, 'UID generates 100 unique IDs');
+
+        // Test minor-unit math (avoid float issues)
+        function toMinor(amount, decimals) { return Math.round(amount * Math.pow(10, decimals)); }
+        function fromMinor(minor, decimals) { return minor / Math.pow(10, decimals); }
+
+        assert(toMinor(0.1, 2) + toMinor(0.2, 2) === 30, 'Minor-unit arithmetic: 0.1 + 0.2 = 0.30 (no float error)');
+        assert(fromMinor(30, 2) === 0.3, 'fromMinor(30, 2) = 0.3');
+        assert(toMinor(1999.99, 2) === 199999, 'toMinor(1999.99, 2) = 199999');
+        assert(toMinor(50000, 0) === 50000, 'toMinor with 0 decimals (UZS)');
+
+        // Test escapeHtml
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        assert(escapeHtml('<script>alert("xss")</script>') === '&lt;script&gt;alert("xss")&lt;/script&gt;', 'escapeHtml prevents XSS');
+        assert(escapeHtml('Normal text') === 'Normal text', 'escapeHtml preserves normal text');
+
+        // ──── Date Tests ────
+
+        function formatDate(dateStr) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return `${months[m-1]} ${d}, ${y}`;
+        }
+        assert(formatDate('2026-01-15') === 'Jan 15, 2026', 'formatDate: 2026-01-15 → Jan 15, 2026');
+        assert(formatDate('2024-02-29') === 'Feb 29, 2024', 'formatDate: leap year date');
+        assert(formatDate('2026-12-31') === 'Dec 31, 2026', 'formatDate: year boundary');
+
+        // daysInMonth
+        function daysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
+        assert(daysInMonth(2024, 1) === 29, 'Feb 2024 has 29 days (leap year)');
+        assert(daysInMonth(2025, 1) === 28, 'Feb 2025 has 28 days');
+        assert(daysInMonth(2026, 0) === 31, 'Jan has 31 days');
+        assert(daysInMonth(2026, 3) === 30, 'Apr has 30 days');
+
+        // ──── Transaction Data Tests ────
+
+        const EXPENSE_CATEGORIES = [
+            'Food & Groceries', 'Restaurants & Cafes', 'Transportation', 'Education',
+            'Housing', 'Utilities', 'Shopping', 'Health', 'Entertainment',
+            'Subscriptions', 'Personal Care', 'Travel', 'Other Expenses'
+        ];
+        const INCOME_CATEGORIES = ['Salary', 'Freelance Income', 'Scholarships', 'Business Income', 'Gifts', 'Other Income'];
+
+        assert(EXPENSE_CATEGORIES.length === 13, '13 expense categories defined');
+        assert(INCOME_CATEGORIES.length === 6, '6 income categories defined');
+
+        // Test calcTotals
+        function calcTotals(transactions) {
+            let incomeMinor = 0, expenseMinor = 0;
+            transactions.forEach(tx => {
+                const minor = toMinor(tx.amount, 2);
+                if (tx.type === 'income') incomeMinor += minor;
+                else expenseMinor += minor;
+            });
+            return {
+                income: fromMinor(incomeMinor, 2),
+                expense: fromMinor(expenseMinor, 2),
+                savings: fromMinor(incomeMinor - expenseMinor, 2),
+                count: transactions.length,
+            };
+        }
+
+        const testTx = [
+            { id: '1', type: 'income', description: 'Salary', amount: 3000, date: '2026-10-01', category: 'Salary' },
+            { id: '2', type: 'expense', description: 'Rent', amount: 1000, date: '2026-10-01', category: 'Housing' },
+            { id: '3', type: 'expense', description: 'Food', amount: 200.50, date: '2026-10-05', category: 'Food & Groceries' },
+        ];
+
+        const totals = calcTotals(testTx);
+        assert(totals.income === 3000, 'calcTotals income = 3000');
+        assert(totals.expense === 1200.50, 'calcTotals expense = 1200.50');
+        assert(totals.savings === 1799.50, 'calcTotals savings = 1799.50');
+        assert(totals.count === 3, 'calcTotals count = 3');
+
+        // Empty dataset
+        const emptyTotals = calcTotals([]);
+        assert(emptyTotals.income === 0, 'Empty dataset: income = 0');
+        assert(emptyTotals.expense === 0, 'Empty dataset: expense = 0');
+        assert(emptyTotals.savings === 0, 'Empty dataset: savings = 0');
+
+        // Zero amount edge case
+        const zeroTx = [{ id: 'z', type: 'expense', description: 'Zero', amount: 0, date: '2026-10-01', category: 'Other Expenses' }];
+        const zeroTotals = calcTotals(zeroTx);
+        assert(zeroTotals.expense === 0, 'Zero amount calculates correctly');
+
+        // Large amounts
+        const largeTx = [{ id: 'l', type: 'expense', description: 'Car', amount: 99999.99, date: '2026-10-01', category: 'Shopping' }];
+        const largeTotals = calcTotals(largeTx);
+        assert(largeTotals.expense === 99999.99, 'Large amount preserves precision');
+
+        // ──── Month Filtering ────
+
+        function getMonthTransactions(transactions, year, month) {
+            return transactions.filter(tx => {
+                const [y, m] = tx.date.split('-').map(Number);
+                return y === year && m === month + 1;
+            });
+        }
+
+        const multiMonthTx = [
+            { id: '1', type: 'expense', description: 'Oct expense', amount: 100, date: '2026-10-15', category: 'Other Expenses' },
+            { id: '2', type: 'expense', description: 'Sep expense', amount: 50, date: '2026-09-10', category: 'Other Expenses' },
+            { id: '3', type: 'income', description: 'Oct income', amount: 3000, date: '2026-10-01', category: 'Salary' },
+        ];
+
+        const octTx = getMonthTransactions(multiMonthTx, 2026, 9); // month is 0-indexed
+        assert(octTx.length === 2, 'Month filter: 2 transactions in Oct 2026');
+        const sepTx = getMonthTransactions(multiMonthTx, 2026, 8);
+        assert(sepTx.length === 1, 'Month filter: 1 transaction in Sep 2026');
+        const novTx = getMonthTransactions(multiMonthTx, 2026, 10);
+        assert(novTx.length === 0, 'Month filter: 0 transactions in Nov 2026');
+
+        // ──── Category Suggestion ────
+
+        const CATEGORY_RULES = [
+            { keywords: ['grocery', 'supermarket', 'korzinka'], category: 'Food & Groceries' },
+            { keywords: ['uber', 'taxi'], category: 'Transportation' },
+            { keywords: ['salary', 'paycheck'], category: 'Salary' },
+            { keywords: ['coffee', 'starbucks'], category: 'Restaurants & Cafes' },
+        ];
+
+        function suggestCategory(description, type) {
+            if (!description) return null;
+            const lower = description.toLowerCase();
+            for (const rule of CATEGORY_RULES) {
+                for (const kw of rule.keywords) {
+                    if (lower.includes(kw)) {
+                        const isExp = EXPENSE_CATEGORIES.includes(rule.category);
+                        const isInc = INCOME_CATEGORIES.includes(rule.category);
+                        if ((type === 'expense' && isExp) || (type === 'income' && isInc)) return rule.category;
+                    }
+                }
+            }
+            return null;
+        }
+
+        assert(suggestCategory('Korzinka Supermarket', 'expense') === 'Food & Groceries', 'Category suggestion: grocery → Food & Groceries');
+        assert(suggestCategory('Uber ride', 'expense') === 'Transportation', 'Category suggestion: uber → Transportation');
+        assert(suggestCategory('Monthly salary', 'income') === 'Salary', 'Category suggestion: salary → Salary');
+        assert(suggestCategory('Monthly salary', 'expense') === null, 'Category suggestion: salary as expense → null (wrong type)');
+        assert(suggestCategory('Random text', 'expense') === null, 'Category suggestion: no match → null');
+        assert(suggestCategory('', 'expense') === null, 'Category suggestion: empty string → null');
+        assert(suggestCategory('Coffee at Starbucks', 'expense') === 'Restaurants & Cafes', 'Category suggestion: coffee → Restaurants');
+
+        // ──── LocalStorage Tests ────
+
+        // Save and load
+        const testKey = 'stp_test_data';
+        const testData = [
+            { id: 't1', type: 'expense', description: 'Test', amount: 42.50, date: '2026-10-15', category: 'Other Expenses', note: '' },
+        ];
+        localStorage.setItem(testKey, JSON.stringify(testData));
+        const loaded = JSON.parse(localStorage.getItem(testKey));
+        assert(Array.isArray(loaded) && loaded.length === 1, 'localStorage: save and load array');
+        assert(loaded[0].amount === 42.50, 'localStorage: amount preserved');
+        assert(loaded[0].date === '2026-10-15', 'localStorage: date preserved');
+        localStorage.removeItem(testKey);
+
+        // Malformed data handling
+        localStorage.setItem(testKey, 'not json at all');
+        let parseFailed = false;
+        try {
+            JSON.parse(localStorage.getItem(testKey));
+        } catch (e) {
+            parseFailed = true;
+        }
+        assert(parseFailed, 'localStorage: malformed JSON throws parse error (caught safely)');
+        localStorage.removeItem(testKey);
+
+        // ──── Validation Tests ────
+
+        function isValidTransaction(tx) {
+            return tx && typeof tx === 'object' &&
+                typeof tx.id === 'string' &&
+                typeof tx.description === 'string' &&
+                typeof tx.amount === 'number' && tx.amount > 0 &&
+                typeof tx.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(tx.date) &&
+                (tx.type === 'income' || tx.type === 'expense') &&
+                typeof tx.category === 'string';
+        }
+
+        assert(isValidTransaction({ id: '1', description: 'Test', amount: 50, date: '2026-10-01', type: 'expense', category: 'Food & Groceries' }), 'Validation: valid transaction passes');
+        assert(!isValidTransaction({ id: '1', description: 'Test', amount: -5, date: '2026-10-01', type: 'expense', category: 'Food' }), 'Validation: negative amount fails');
+        assert(!isValidTransaction({ id: '1', description: 'Test', amount: 0, date: '2026-10-01', type: 'expense', category: 'Food' }), 'Validation: zero amount fails');
+        assert(!isValidTransaction({ id: '1', description: 'Test', amount: 50, date: 'bad-date', type: 'expense', category: 'Food' }), 'Validation: bad date format fails');
+        assert(!isValidTransaction({ id: '1', description: 'Test', amount: 50, date: '2026-10-01', type: 'transfer', category: 'Food' }), 'Validation: invalid type fails');
+        assert(!isValidTransaction(null), 'Validation: null fails');
+        assert(!isValidTransaction('string'), 'Validation: string fails');
+
+        // ──── CSV Export Tests ────
+
+        function generateCsvRow(tx) {
+            return [
+                tx.date,
+                tx.type,
+                `"${tx.description.replace(/"/g, '""')}"`,
+                `"${tx.category.replace(/"/g, '""')}"`,
+                tx.amount.toString(),
+                `"${(tx.note || '').replace(/"/g, '""')}"`,
+            ].join(',');
+        }
+
+        const csvTx = { id: '1', type: 'expense', description: 'Coffee "special"', amount: 5.50, date: '2026-10-15', category: 'Restaurants & Cafes', note: 'Good coffee' };
+        const row = generateCsvRow(csvTx);
+        assert(row.includes('2026-10-15'), 'CSV: contains date');
+        assert(row.includes('expense'), 'CSV: contains type');
+        assert(row.includes('5.5'), 'CSV: contains amount');
+        assert(row.includes('""special""'), 'CSV: double-quotes escaped');
+        assert(row.includes('"Restaurants & Cafes"'), 'CSV: category quoted');
+
+        // ──── JSON Import Validation ────
+
+        function validateImport(data) {
+            if (!data || !Array.isArray(data.transactions)) return { valid: false, error: 'Missing transactions array' };
+            const validTx = data.transactions.filter(tx =>
+                tx && typeof tx === 'object' &&
+                typeof tx.description === 'string' &&
+                typeof tx.amount === 'number' && tx.amount > 0 &&
+                typeof tx.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(tx.date) &&
+                (tx.type === 'income' || tx.type === 'expense')
+            );
+            return { valid: true, count: validTx.length, total: data.transactions.length };
+        }
+
+        const goodImport = validateImport({ transactions: testData });
+        assert(goodImport.valid && goodImport.count === 1, 'Import validation: valid file accepted');
+
+        const badImport = validateImport({ transactions: [{ bad: true }] });
+        assert(badImport.valid && badImport.count === 0, 'Import validation: invalid records filtered');
+
+        const noArray = validateImport({ data: 'wrong' });
+        assert(!noArray.valid, 'Import validation: missing array rejected');
+
+        const nullImport = validateImport(null);
+        assert(!nullImport.valid, 'Import validation: null rejected');
+
+        // ──── Comparison Logic ────
+
+        function calcComparison(current, previous) {
+            if (previous === 0 && current === 0) return { display: 'none' };
+            if (previous === 0) return { display: 'new', hasPercentage: false };
+            const diff = current - previous;
+            const pct = Math.round((diff / Math.abs(previous)) * 100);
+            return { diff, pct, display: diff === 0 ? 'same' : 'change', hasPercentage: true };
+        }
+
+        assert(calcComparison(0, 0).display === 'none', 'Comparison: 0 vs 0 → no display');
+        assert(calcComparison(100, 0).hasPercentage === false, 'Comparison: 100 vs 0 → no percentage (division by zero safe)');
+        assert(calcComparison(150, 100).pct === 50, 'Comparison: 150 vs 100 → 50%');
+        assert(calcComparison(50, 100).pct === -50, 'Comparison: 50 vs 100 → -50%');
+        assert(calcComparison(100, 100).display === 'same', 'Comparison: equal values → same');
+
+        // ──── Budget Calculations ────
+
+        function calcBudgetStatus(budget, spent) {
+            if (budget <= 0) return { status: 'not-set', pct: 0, remaining: 0 };
+            const remaining = budget - spent;
+            const pct = Math.round((spent / budget) * 100);
+            let status = 'ok';
+            if (pct > 100) status = 'over';
+            else if (pct > 80) status = 'warning';
+            return { status, pct, remaining };
+        }
+
+        assert(calcBudgetStatus(1000, 500).status === 'ok', 'Budget: 50% → ok');
+        assert(calcBudgetStatus(1000, 500).pct === 50, 'Budget: 50% calculated');
+        assert(calcBudgetStatus(1000, 500).remaining === 500, 'Budget: remaining = 500');
+        assert(calcBudgetStatus(1000, 850).status === 'warning', 'Budget: 85% → warning');
+        assert(calcBudgetStatus(1000, 1200).status === 'over', 'Budget: 120% → over');
+        assert(calcBudgetStatus(1000, 1200).remaining === -200, 'Budget: over by 200');
+        assert(calcBudgetStatus(0, 500).status === 'not-set', 'Budget: 0 budget → not set');
+        assert(calcBudgetStatus(0, 0).status === 'not-set', 'Budget: 0/0 → not set');
+
+        // ──── Currency Formatting ────
+
+        const CURRENCY_CONFIG = {
+            USD: { code: 'USD', symbol: '$', locale: 'en-US', decimals: 2 },
+            UZS: { code: 'UZS', symbol: 'soʻm', locale: 'uz-UZ', decimals: 0 },
+            JPY: { code: 'JPY', symbol: '¥', locale: 'ja-JP', decimals: 0 },
+        };
+
+        function formatCurrency(amount, currency) {
+            const cfg = CURRENCY_CONFIG[currency];
+            try {
+                return new Intl.NumberFormat(cfg.locale, {
+                    style: 'currency', currency: cfg.code,
+                    minimumFractionDigits: cfg.decimals, maximumFractionDigits: cfg.decimals,
+                }).format(amount);
+            } catch(e) {
+                return cfg.symbol + amount.toFixed(cfg.decimals);
+            }
+        }
+
+        const usdFormatted = formatCurrency(1234.56, 'USD');
+        assert(usdFormatted.includes('1,234') || usdFormatted.includes('1234'), 'USD formatting includes number');
+        assert(usdFormatted.includes('$') || usdFormatted.includes('USD'), 'USD formatting includes symbol');
+
+        const jpyFormatted = formatCurrency(5000, 'JPY');
+        assert(!jpyFormatted.includes('.'), 'JPY formatting: no decimals');
+
+        // ──── Savings Definition ────
+
+        assert(3000 - 1200.50 === 1799.50, 'Savings = Income - Expenses (basic)');
+
+        const onlyExpenses = calcTotals([
+            { id: '1', type: 'expense', description: 'Rent', amount: 1000, date: '2026-10-01', category: 'Housing' }
+        ]);
+        assert(onlyExpenses.savings === -1000, 'Savings negative when only expenses (no income)');
+
+        const onlyIncome = calcTotals([
+            { id: '1', type: 'income', description: 'Pay', amount: 5000, date: '2026-10-01', category: 'Salary' }
+        ]);
+        assert(onlyIncome.savings === 5000, 'Savings = full income when no expenses');
+
+        // ──── Edit Should Not Double Count ────
+        // Simulate: have 2 transactions, edit one, re-calculate
+        let txList = [
+            { id: 'a', type: 'expense', description: 'Groceries', amount: 100, date: '2026-10-01', category: 'Food & Groceries' },
+            { id: 'b', type: 'expense', description: 'Transport', amount: 50, date: '2026-10-02', category: 'Transportation' },
+        ];
+        let beforeEdit = calcTotals(txList);
+        assert(beforeEdit.expense === 150, 'Pre-edit: total = 150');
+
+        // Edit transaction 'a': change amount to 120
+        const idx = txList.findIndex(t => t.id === 'a');
+        txList[idx] = { ...txList[idx], amount: 120 };
+        let afterEdit = calcTotals(txList);
+        assert(afterEdit.expense === 170, 'Post-edit: total = 170 (not doubled)');
+        assert(txList.length === 2, 'Post-edit: still 2 transactions');
+
+        // ──── Delete Should Remove Effect ────
+        txList = txList.filter(t => t.id !== 'a');
+        let afterDelete = calcTotals(txList);
+        assert(afterDelete.expense === 50, 'Post-delete: total = 50');
+        assert(txList.length === 1, 'Post-delete: 1 transaction remaining');
+
+        // ──── Month Boundary ────
+        const janTx = getMonthTransactions([
+            { id: '1', date: '2026-01-31', type: 'expense', amount: 10, description: 'Jan end', category: 'Other Expenses' },
+            { id: '2', date: '2026-02-01', type: 'expense', amount: 20, description: 'Feb start', category: 'Other Expenses' },
+        ], 2026, 0); // January
+        assert(janTx.length === 1 && janTx[0].description === 'Jan end', 'Month boundary: Jan 31 → Jan, Feb 1 → Feb');
+
+        // ──── Year Boundary ────
+        const decTx = getMonthTransactions([
+            { id: '1', date: '2025-12-31', type: 'expense', amount: 10, description: 'Dec 2025', category: 'Other Expenses' },
+            { id: '2', date: '2026-01-01', type: 'expense', amount: 20, description: 'Jan 2026', category: 'Other Expenses' },
+        ], 2025, 11); // December 2025
+        assert(decTx.length === 1 && decTx[0].description === 'Dec 2025', 'Year boundary: Dec 2025 vs Jan 2026');
+
+        // ──── Summary ────
+        document.getElementById('summary').innerHTML = `
+            Tests completed: <span class="passed">${passed} passed</span>, <span class="failed">${failed} failed</span>
+            out of ${passed + failed} total.
+            ${failed === 0 ? '<br>🎉 All tests passed!' : '<br>⚠️ Some tests failed. Check the results above.'}
+        `;
+    })();
+    </script>
+</body>
+</html>

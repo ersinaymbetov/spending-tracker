@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Capacitor Android build
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/local.properties
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keystore (never commit!)
+*.keystore
+*.jks

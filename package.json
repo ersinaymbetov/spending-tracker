@@ -1,0 +1,28 @@
+{
+  "name": "spending-tracker-pro",
+  "version": "1.0.0",
+  "description": "Spending Tracker Pro — Personal finance dashboard Android app",
+  "main": "index.html",
+  "scripts": {
+    "cap:init": "npx cap init \"Spending Tracker Pro\" com.spendingtracker.app --web-dir .",
+    "cap:add": "npx cap add android",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "cap:build": "npx cap sync android && cd android && ./gradlew assembleDebug",
+    "cap:build:release": "npx cap sync android && cd android && ./gradlew assembleRelease",
+    "cap:run": "npx cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/preferences": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  },
+  "keywords": ["spending", "tracker", "finance", "android"],
+  "license": "MIT"
+}
