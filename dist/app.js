@@ -513,8 +513,8 @@
 
         // Update title
         const titles = {
-            dashboard: 'Dashboard',
-            transactions: 'Transactions',
+            dashboard: 'Overview',
+            transactions: 'History',
             analytics: 'Analytics',
             budgets: 'Budgets',
             settings: 'Settings',
@@ -523,8 +523,10 @@
 
         // Show/hide month nav on relevant pages
         const monthNav = document.getElementById('monthNav');
-        const showMonth = ['dashboard', 'analytics', 'budgets'].includes(page);
-        monthNav.style.display = showMonth ? 'flex' : 'none';
+        if (monthNav) {
+            const showMonth = ['dashboard', 'analytics', 'budgets'].includes(page);
+            monthNav.style.display = showMonth ? 'inline-flex' : 'none';
+        }
 
         // Close mobile sidebar
         closeSidebar();
@@ -1093,6 +1095,7 @@
 
     function openModal(id) {
         document.getElementById(id).classList.add('active');
+        document.body.classList.add('modal-open');
         // Focus first input if transaction modal
         if (id === 'transactionModal') {
             setTimeout(() => document.getElementById('txDescription').focus(), 100);
@@ -1101,6 +1104,9 @@
 
     function closeModal(id) {
         document.getElementById(id).classList.remove('active');
+        if (!document.querySelector('.modal-overlay.active')) {
+            document.body.classList.remove('modal-open');
+        }
     }
 
     // ───────── Analytics ─────────
@@ -1808,9 +1814,11 @@
         const soEl = document.getElementById('sidebarOverlay');
         if (soEl) soEl.addEventListener('click', closeSidebar);
 
-        // Add transaction buttons
-        document.getElementById('addTransactionBtn').addEventListener('click', openAddTransaction);
-        document.getElementById('mobileAddBtn').addEventListener('click', openAddTransaction);
+        // Add transaction buttons (safe checks if on desktop)
+        const addBtn = document.getElementById('addTransactionBtn');
+        if (addBtn) addBtn.addEventListener('click', openAddTransaction);
+        const mobAddBtn = document.getElementById('mobileAddBtn');
+        if (mobAddBtn) mobAddBtn.addEventListener('click', openAddTransaction);
 
         // Transaction form
         document.getElementById('transactionForm').addEventListener('submit', submitTransaction);

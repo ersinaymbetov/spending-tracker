@@ -262,14 +262,73 @@ button:active, .btn:active, .nav-item:active {
 /* Top Bar */
 .top-bar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 22px 0 18px; flex-wrap: wrap; gap: 12px;
+    padding: calc(14px + var(--safe-top, 0px)) 0 14px;
+    gap: 12px;
     position: sticky; top: 0; z-index: 50;
     background: var(--bg-base);
 }
-.top-bar-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.page-title { font-size: 1.35rem; }
-.month-nav { display: flex; align-items: center; gap: 8px; }
-.month-label { font-size: 0.92rem; font-weight: 500; color: var(--text-secondary); min-width: 130px; text-align: center; }
+.top-bar-left { display: flex; align-items: center; gap: 14px; }
+.top-bar-right { display: flex; align-items: center; gap: 8px; }
+.page-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+/* Integrated Month Nav Pill */
+.month-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    padding: 3px 6px;
+    gap: 2px;
+    box-shadow: var(--shadow-sm);
+}
+.month-nav-arrow {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px 6px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition), color var(--transition);
+}
+.month-nav-arrow:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+.month-pill-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 90px;
+    text-align: center;
+    letter-spacing: -0.01em;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-pill);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+}
+.theme-toggle-btn:hover { background: var(--bg-hover); }
+.theme-toggle-btn:active { transform: scale(0.92); }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -739,6 +798,16 @@ button:active, .btn:active, .nav-item:active {
     justify-content: space-around;
     padding: 4px 6px;
     z-index: 500;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease;
+}
+
+/* Hide Telegram Bottom Dock completely when modal is open */
+body.modal-open .telegram-bottom-nav,
+body:has(.modal-overlay.active) .telegram-bottom-nav,
+.modal-overlay.active ~ .telegram-bottom-nav {
+    transform: translate(-50%, 160%) scale(0.9) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 .tg-nav-item {
@@ -920,25 +989,17 @@ button:active, .btn:active, .nav-item:active {
     .sidebar { display: none !important; }
     .sidebar-overlay { display: none !important; }
     
-    /* Mobile Header */
-    .mobile-header {
-        display: flex;
-        justify-content: space-between;
-        padding-left: calc(16px + var(--safe-left));
-        padding-right: calc(16px + var(--safe-right));
-    }
-    .mobile-menu-btn { display: none; } /* Replaced by Telegram bottom dock */
-    .mobile-title { font-size: 1.05rem; font-weight: 700; }
+    /* Mobile Header - Removed in favor of unified clean top-bar */
+    .mobile-header { display: none !important; }
 
     .main-content {
         margin-left: 0;
         padding: 0 16px calc(90px + var(--safe-bottom, 0px));
     }
     .top-bar {
-        padding-top: calc(64px + var(--safe-top));
+        padding-top: calc(14px + var(--safe-top, 0px));
         padding-bottom: 12px;
     }
-    .top-bar-right .btn span { display: none; }
     
     /* Hero Card Mobile */
     .hero-overview-card {
