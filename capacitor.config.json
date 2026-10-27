@@ -1,7 +1,7 @@
 {
   "appId": "com.spendingtracker.app",
   "appName": "Spending Tracker Pro",
-  "webDir": ".",
+  "webDir": "dist",
   "server": {
     "androidScheme": "https"
   },

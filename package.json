@@ -4,12 +4,12 @@
   "description": "Spending Tracker Pro — Personal finance dashboard Android app",
   "main": "index.html",
   "scripts": {
-    "cap:init": "npx cap init \"Spending Tracker Pro\" com.spendingtracker.app --web-dir .",
+    "build": "node build.js",
     "cap:add": "npx cap add android",
-    "cap:sync": "npx cap sync android",
+    "cap:sync": "npm run build && npx cap sync android",
     "cap:open": "npx cap open android",
-    "cap:build": "npx cap sync android && cd android && ./gradlew assembleDebug",
-    "cap:build:release": "npx cap sync android && cd android && ./gradlew assembleRelease",
+    "cap:build": "npm run cap:sync && cd android && ./gradlew assembleDebug",
+    "cap:build:release": "npm run cap:sync && cd android && ./gradlew assembleRelease",
     "cap:run": "npx cap run android"
   },
   "dependencies": {
