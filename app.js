@@ -98,6 +98,7 @@
         transactions: [],
         settings: {
             currency: 'USD',
+            theme: 'system',
             monthlyBudget: 0,
             categoryBudgets: {},
         },
@@ -285,10 +286,59 @@
                     if (parsed.categoryBudgets && typeof parsed.categoryBudgets === 'object') {
                         state.settings.categoryBudgets = parsed.categoryBudgets;
                     }
+                    if (parsed.theme && ['system', 'light', 'dark'].includes(parsed.theme)) {
+                        state.settings.theme = parsed.theme;
+                    }
                 }
             }
         } catch (e) {
             console.error('Error loading settings:', e);
+        }
+    }
+
+    // ───────── Theme System (System / Dark / Light) ─────────
+
+    function applyTheme(theme, save = false) {
+        state.settings.theme = theme || 'system';
+        let effective = state.settings.theme;
+        if (effective === 'system') {
+            effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', effective);
+
+        // Update Theme Color Meta for mobile status bars
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+            metaTheme.setAttribute('content', effective === 'dark' ? '#0b0e14' : '#f1f4f9');
+        }
+
+        // Capacitor StatusBar sync
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+            try {
+                window.Capacitor.Plugins.StatusBar.setStyle({ style: effective === 'dark' ? 'DARK' : 'LIGHT' });
+                window.Capacitor.Plugins.StatusBar.setBackgroundColor({ color: effective === 'dark' ? '#0b0e14' : '#f1f4f9' });
+            } catch (_) {}
+        }
+
+        // Update active class on settings segmented buttons
+        document.querySelectorAll('.theme-seg-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.themeVal === state.settings.theme);
+        });
+
+        // Update quick toggle icon in header
+        const quickIcon = document.getElementById('quickThemeIcon');
+        if (quickIcon) {
+            if (effective === 'dark') {
+                // Show sun icon (click to switch to light)
+                quickIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+            } else {
+                // Show moon icon (click to switch to dark)
+                quickIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+            }
+        }
+
+        if (save) {
+            saveSettings();
         }
     }
 
@@ -451,8 +501,8 @@
     function navigateTo(page) {
         state.currentPage = page;
 
-        // Update nav items
-        document.querySelectorAll('.nav-item').forEach(item => {
+        // Update nav items (both sidebar and Telegram bottom dock)
+        document.querySelectorAll('.nav-item, .tg-nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.page === page);
         });
 
@@ -578,17 +628,34 @@
             document.getElementById('budgetComparison').textContent = '';
         }
 
-        // Greeting
+        // Quick budget status chip
+        const qbEl = document.getElementById('quickBudgetStatus');
+        if (qbEl) {
+            if (budget > 0) {
+                const pct = Math.round((totals.expense / budget) * 100);
+                qbEl.textContent = `${pct}% used`;
+                qbEl.style.color = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--yellow)' : 'var(--green)';
+            } else {
+                qbEl.textContent = 'Manage \u2192';
+                qbEl.style.color = 'var(--accent)';
+            }
+        }
+
+        // Greeting (safely checked)
         const hour = new Date().getHours();
         let greeting = 'Good evening!';
         if (hour < 12) greeting = 'Good morning!';
         else if (hour < 18) greeting = 'Good afternoon!';
-        document.querySelector('.dashboard-greeting h2').textContent = greeting;
+        const greetingH2 = document.querySelector('.dashboard-greeting h2');
+        if (greetingH2) greetingH2.textContent = greeting;
 
         const isCurrentMonth = state.selectedYear === new Date().getFullYear() && state.selectedMonth === new Date().getMonth();
-        document.getElementById('greetingSub').textContent = isCurrentMonth
-            ? "Here's your financial overview for this month."
-            : `Viewing ${monthName(state.selectedMonth)} ${state.selectedYear}.`;
+        const greetingSub = document.getElementById('greetingSub');
+        if (greetingSub) {
+            greetingSub.textContent = isCurrentMonth
+                ? "Here's your financial overview for this month."
+                : `Viewing ${monthName(state.selectedMonth)} ${state.selectedYear}.`;
+        }
 
         // Recent transactions
         renderRecentTransactions(curr);
@@ -676,11 +743,13 @@
     function renderDashDoughnut(monthTx) {
         const canvas = document.getElementById('dashDoughnutChart');
         const emptyEl = document.getElementById('dashDoughnutEmpty');
+        const captionEl = document.getElementById('heroChartCaption');
         const expenses = monthTx.filter(tx => tx.type === 'expense');
 
         if (expenses.length === 0) {
             canvas.style.display = 'none';
             emptyEl.style.display = 'flex';
+            if (captionEl) captionEl.textContent = 'No Expenses';
             if (charts.dashDoughnut) { charts.dashDoughnut.destroy(); charts.dashDoughnut = null; }
             return;
         }
@@ -698,6 +767,10 @@
         const data = sorted.map(e => Math.round(e[1] * 100) / 100);
         const colors = generateColors(labels.length);
 
+        if (captionEl) {
+            captionEl.textContent = `${sorted.length} ${sorted.length === 1 ? 'Category' : 'Categories'}`;
+        }
+
         if (charts.dashDoughnut) charts.dashDoughnut.destroy();
         charts.dashDoughnut = new Chart(canvas, {
             type: 'doughnut',
@@ -705,9 +778,9 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '65%',
+                cutout: '72%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#9096a4', padding: 12, font: { size: 11 }, usePointStyle: true, pointStyleWidth: 8 } },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function (ctx) {
@@ -1673,10 +1746,37 @@
 
     function init() {
         loadData();
+        applyTheme(state.settings.theme || 'system', false);
         updateMonthLabel();
         populateFilterCategories();
 
-        // Navigation
+        // System theme change listener (auto sync)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (state.settings.theme === 'system') {
+                applyTheme('system', false);
+            }
+        });
+
+        // Theme segmented buttons in Settings
+        document.querySelectorAll('.theme-seg-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                applyTheme(btn.dataset.themeVal, true);
+                showToast(`Theme set to ${btn.dataset.themeVal}.`, 'info');
+            });
+        });
+
+        // Quick theme toggle in Mobile Header
+        const quickThemeBtn = document.getElementById('quickThemeBtn');
+        if (quickThemeBtn) {
+            quickThemeBtn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme') || 'dark';
+                const next = current === 'dark' ? 'light' : 'dark';
+                applyTheme(next, true);
+                showToast(`Switched to ${next} mode.`, 'info');
+            });
+        }
+
+        // Navigation (Sidebar + Telegram Bottom Dock)
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1684,14 +1784,29 @@
             });
         });
 
+        document.querySelectorAll('.tg-nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo(item.dataset.page);
+            });
+        });
+
+        const tgAdd = document.getElementById('tgAddBtn');
+        if (tgAdd) {
+            tgAdd.addEventListener('click', openAddTransaction);
+        }
+
         // Month navigation
         document.getElementById('prevMonth').addEventListener('click', prevMonth);
         document.getElementById('nextMonth').addEventListener('click', nextMonth);
 
-        // Mobile sidebar
-        document.getElementById('mobileMenuBtn').addEventListener('click', openSidebar);
-        document.getElementById('sidebarCloseBtn').addEventListener('click', closeSidebar);
-        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+        // Mobile sidebar (safe checks)
+        const mmBtn = document.getElementById('mobileMenuBtn');
+        if (mmBtn) mmBtn.addEventListener('click', openSidebar);
+        const scBtn = document.getElementById('sidebarCloseBtn');
+        if (scBtn) scBtn.addEventListener('click', closeSidebar);
+        const soEl = document.getElementById('sidebarOverlay');
+        if (soEl) soEl.addEventListener('click', closeSidebar);
 
         // Add transaction buttons
         document.getElementById('addTransactionBtn').addEventListener('click', openAddTransaction);
