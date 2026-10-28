@@ -198,6 +198,12 @@
         return names[monthIndex];
     }
 
+    /** Get short month name for compact mobile displays */
+    function shortMonthName(monthIndex) {
+        const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return names[monthIndex];
+    }
+
     /** Escape HTML to prevent XSS */
     function escapeHtml(str) {
         const div = document.createElement('div');
@@ -603,7 +609,11 @@
     // ───────── Month Navigation ─────────
 
     function updateMonthLabel() {
-        document.getElementById('monthLabel').textContent = `${monthName(state.selectedMonth)} ${state.selectedYear}`;
+        const labelEl = document.getElementById('monthLabel');
+        if (!labelEl) return;
+        const isMobile = window.innerWidth <= 480;
+        const m = isMobile ? shortMonthName(state.selectedMonth) : monthName(state.selectedMonth);
+        labelEl.textContent = `${m} ${state.selectedYear}`;
     }
 
     function prevMonth() {
@@ -2213,6 +2223,41 @@
         }
     }
 
+    /** Prevent accidental pinch-to-zoom and double-tap-to-zoom on mobile devices */
+    function preventZoomGestures() {
+        // Prevent multi-touch pinch zoom
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Prevent iOS gesturestart
+        document.addEventListener('gesturestart', (e) => {
+            e.preventDefault();
+        });
+
+        // Prevent double-tap to zoom on UI elements
+        let lastTouchTime = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchTime <= 300) {
+                const tag = (e.target && e.target.tagName) || '';
+                if (!['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'].includes(tag)) {
+                    e.preventDefault();
+                }
+            }
+            lastTouchTime = now;
+        }, { passive: false });
+
+        // Prevent Ctrl + Mouse wheel / Trackpad zoom
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+
     // ───────── Beginner Onboarding Guide ─────────
 
     let currentOnboardingSlide = 1;
@@ -2298,6 +2343,9 @@
         updateMonthLabel();
         populateFilterCategories();
         initKeyboardDetection();
+        preventZoomGestures();
+
+        window.addEventListener('resize', updateMonthLabel);
 
         // System theme change listener (auto sync)
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
