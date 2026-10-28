@@ -102,6 +102,10 @@
             monthlyBudget: 0,
             categoryBudgets: {},
             hapticsEnabled: true,
+            onboardingComplete: false,
+            ratingPrompted: false,
+            userRating: 5,
+            userReview: '',
         },
         currentPage: 'dashboard',
         selectedYear: new Date().getFullYear(),
@@ -319,6 +323,18 @@
                     if (typeof parsed.hapticsEnabled === 'boolean') {
                         state.settings.hapticsEnabled = parsed.hapticsEnabled;
                     }
+                    if (typeof parsed.onboardingComplete === 'boolean') {
+                        state.settings.onboardingComplete = parsed.onboardingComplete;
+                    }
+                    if (typeof parsed.ratingPrompted === 'boolean') {
+                        state.settings.ratingPrompted = parsed.ratingPrompted;
+                    }
+                    if (typeof parsed.userRating === 'number') {
+                        state.settings.userRating = parsed.userRating;
+                    }
+                    if (typeof parsed.userReview === 'string') {
+                        state.settings.userReview = parsed.userReview;
+                    }
                 }
             }
         } catch (e) {
@@ -464,7 +480,15 @@
             return;
         }
 
-        // 4. On dashboard: double-tap back to exit
+        // 4. On first exit attempt: prompt for 5-star review ("Do you like our app?")
+        if (!state.settings.ratingPrompted) {
+            state.settings.ratingPrompted = true;
+            saveSettings();
+            openRatingModal();
+            return;
+        }
+
+        // 5. On dashboard: double-tap back to exit
         const now = Date.now();
         if (now - lastBackPress < 2000) {
             // Exit the app
@@ -702,6 +726,72 @@
             } else {
                 qbEl.textContent = 'Manage \u2192';
                 qbEl.style.color = 'var(--accent)';
+            }
+        }
+
+        // Prominent Dashboard Budget Target Card (Direct Discovery)
+        const dashBudgetCard = document.getElementById('dashboardBudgetCard');
+        if (dashBudgetCard) {
+            dashBudgetCard.onclick = () => {
+                triggerHaptic(10);
+                navigateTo('budgets');
+            };
+            const spentLabel = document.getElementById('dashBudgetSpentLabel');
+            const limitLabel = document.getElementById('dashBudgetLimitLabel');
+            const remLabel = document.getElementById('dashBudgetRemLabel');
+            const barFill = document.getElementById('dashBudgetBarFill');
+            const badge = document.getElementById('dashBudgetBadge');
+
+            if (budget > 0) {
+                const remaining = budget - totals.expense;
+                const pct = Math.min(100, Math.round((totals.expense / budget) * 100));
+                if (spentLabel) spentLabel.textContent = `Spent: ${formatCurrency(totals.expense)}`;
+                if (limitLabel) limitLabel.textContent = `Limit: ${formatCurrency(budget)}`;
+                if (barFill) barFill.style.width = `${pct}%`;
+
+                if (remaining < 0) {
+                    if (remLabel) {
+                        remLabel.textContent = `Over limit by ${formatCurrency(Math.abs(remaining))}`;
+                        remLabel.style.color = 'var(--red)';
+                    }
+                    if (badge) {
+                        badge.textContent = 'Over Budget';
+                        badge.className = 'badge badge-danger';
+                    }
+                    if (barFill) barFill.style.backgroundColor = 'var(--red)';
+                } else if (pct >= 80) {
+                    if (remLabel) {
+                        remLabel.textContent = `Remaining: ${formatCurrency(remaining)}`;
+                        remLabel.style.color = 'var(--yellow)';
+                    }
+                    if (badge) {
+                        badge.textContent = 'Near Limit';
+                        badge.className = 'badge badge-warning';
+                    }
+                    if (barFill) barFill.style.backgroundColor = 'var(--yellow)';
+                } else {
+                    if (remLabel) {
+                        remLabel.textContent = `Remaining: ${formatCurrency(remaining)}`;
+                        remLabel.style.color = 'var(--green)';
+                    }
+                    if (badge) {
+                        badge.textContent = `${pct}% Used`;
+                        badge.className = 'badge badge-success';
+                    }
+                    if (barFill) barFill.style.backgroundColor = 'var(--accent)';
+                }
+            } else {
+                if (spentLabel) spentLabel.textContent = `Spent: ${formatCurrency(totals.expense)}`;
+                if (limitLabel) limitLabel.textContent = 'Limit: Not set';
+                if (remLabel) {
+                    remLabel.textContent = 'Tap to set monthly budget target \u2192';
+                    remLabel.style.color = 'var(--accent)';
+                }
+                if (badge) {
+                    badge.textContent = 'Set Goal';
+                    badge.className = 'badge badge-accent';
+                }
+                if (barFill) barFill.style.width = '0%';
             }
         }
 
@@ -1125,8 +1215,12 @@
         updateTypeToggle('expense');
         populateCategories('expense');
         renderQuickCategoryChips('expense');
-        document.getElementById('txDate').value = todayStr();
+        const today = todayStr();
+        document.getElementById('txDate').value = today;
+        updateDateQuickButtons(today);
         updateTxAmountSymbol();
+        const noteDetails = document.getElementById('txNoteDetails');
+        if (noteDetails) noteDetails.open = false;
         clearFormErrors();
         document.getElementById('categorySuggestion').style.display = 'none';
         openModal('transactionModal');
@@ -1145,9 +1239,12 @@
         document.getElementById('txAmount').value = tx.amount;
         updateTxAmountSymbol();
         document.getElementById('txDate').value = tx.date;
+        updateDateQuickButtons(tx.date);
         document.getElementById('txCategory').value = tx.category;
         renderQuickCategoryChips(tx.type, tx.category);
         document.getElementById('txNote').value = tx.note || '';
+        const noteDetails = document.getElementById('txNoteDetails');
+        if (noteDetails) noteDetails.open = Boolean(tx.note);
         clearFormErrors();
         document.getElementById('categorySuggestion').style.display = 'none';
         openModal('transactionModal');
@@ -1173,6 +1270,24 @@
         const m = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
         return `${y}-${m}-${day}`;
+    }
+
+    function yesterdayStr() {
+        const d = new Date();
+        d.setDate(d.getDate() - 1);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    function updateDateQuickButtons(dateStr) {
+        const today = todayStr();
+        const yest = yesterdayStr();
+        const btnToday = document.getElementById('dateBtnToday');
+        const btnYest = document.getElementById('dateBtnYesterday');
+        if (btnToday) btnToday.classList.toggle('active', dateStr === today);
+        if (btnYest) btnYest.classList.toggle('active', dateStr === yest);
     }
 
     function clearFormErrors() {
@@ -2098,6 +2213,83 @@
         }
     }
 
+    // ───────── Beginner Onboarding Guide ─────────
+
+    let currentOnboardingSlide = 1;
+    const TOTAL_ONBOARDING_SLIDES = 4;
+
+    function showOnboardingSlide(slideNum) {
+        currentOnboardingSlide = slideNum;
+        document.querySelectorAll('.onboarding-slide').forEach(s => {
+            s.classList.toggle('active', parseInt(s.dataset.slide, 10) === slideNum);
+        });
+        document.querySelectorAll('.onboarding-dot').forEach(d => {
+            d.classList.toggle('active', parseInt(d.dataset.index, 10) === slideNum);
+        });
+        const nextBtn = document.getElementById('onboardingNextBtn');
+        if (nextBtn) {
+            nextBtn.textContent = slideNum === TOTAL_ONBOARDING_SLIDES ? 'Start Tracking 🚀' : 'Next \u2192';
+        }
+    }
+
+    function openOnboardingModal() {
+        triggerHaptic(12);
+        showOnboardingSlide(1);
+        openModal('onboardingModal');
+    }
+
+    function completeOnboarding() {
+        triggerHaptic(15);
+        state.settings.onboardingComplete = true;
+        saveSettings();
+        closeModal('onboardingModal');
+    }
+
+    // ───────── App Rating & 5-Star Review System ─────────
+
+    let selectedRatingStars = 5;
+    const RATING_FEEDBACK_TEXTS = {
+        5: '⭐⭐⭐⭐⭐ Outstanding! 5 Stars',
+        4: '⭐⭐⭐⭐ Great Experience! 4 Stars',
+        3: '⭐⭐⭐ Good! 3 Stars',
+        2: '⭐⭐ Could Be Better (2 Stars)',
+        1: '⭐ Needs Improvement (1 Star)',
+    };
+
+    function updateRatingStars(stars) {
+        selectedRatingStars = stars;
+        document.querySelectorAll('.rating-star-btn').forEach(btn => {
+            const starVal = parseInt(btn.dataset.star, 10);
+            btn.classList.toggle('selected', starVal <= stars);
+        });
+        const label = document.getElementById('ratingFeedbackLabel');
+        if (label) {
+            label.textContent = RATING_FEEDBACK_TEXTS[stars] || `${stars} Stars`;
+        }
+    }
+
+    function openRatingModal() {
+        triggerHaptic(12);
+        updateRatingStars(state.settings.userRating || 5);
+        const commentInput = document.getElementById('ratingCommentInput');
+        if (commentInput) {
+            commentInput.value = state.settings.userReview || '';
+        }
+        openModal('ratingModal');
+    }
+
+    function submitRating() {
+        triggerHaptic(20);
+        const commentEl = document.getElementById('ratingCommentInput');
+        const comment = commentEl ? commentEl.value.trim() : '';
+        state.settings.ratingPrompted = true;
+        state.settings.userRating = selectedRatingStars;
+        state.settings.userReview = comment;
+        saveSettings();
+        closeModal('ratingModal');
+        showToast('Thank you for rating Spending Tracker Pro! ⭐', 'success');
+    }
+
     // ───────── Initialize ─────────
 
     function init() {
@@ -2131,6 +2323,15 @@
                 const next = current === 'dark' ? 'light' : 'dark';
                 applyTheme(next, true);
                 showToast(`Switched to ${next} mode.`, 'info');
+            });
+        }
+
+        // Omnipresent Header Settings Button
+        const headerSettingsBtn = document.getElementById('headerSettingsBtn');
+        if (headerSettingsBtn) {
+            headerSettingsBtn.addEventListener('click', () => {
+                triggerHaptic(8);
+                navigateTo('settings');
             });
         }
 
@@ -2220,6 +2421,90 @@
             });
         });
 
+        // Date quick buttons
+        const dateBtnToday = document.getElementById('dateBtnToday');
+        if (dateBtnToday) {
+            dateBtnToday.addEventListener('click', () => {
+                triggerHaptic(8);
+                const t = todayStr();
+                document.getElementById('txDate').value = t;
+                updateDateQuickButtons(t);
+            });
+        }
+        const dateBtnYesterday = document.getElementById('dateBtnYesterday');
+        if (dateBtnYesterday) {
+            dateBtnYesterday.addEventListener('click', () => {
+                triggerHaptic(8);
+                const y = yesterdayStr();
+                document.getElementById('txDate').value = y;
+                updateDateQuickButtons(y);
+            });
+        }
+        const txDateInput = document.getElementById('txDate');
+        if (txDateInput) {
+            txDateInput.addEventListener('change', () => {
+                updateDateQuickButtons(txDateInput.value);
+            });
+        }
+
+        // Onboarding Carousel Actions
+        const onboardingNextBtn = document.getElementById('onboardingNextBtn');
+        if (onboardingNextBtn) {
+            onboardingNextBtn.addEventListener('click', () => {
+                triggerHaptic(10);
+                if (currentOnboardingSlide < TOTAL_ONBOARDING_SLIDES) {
+                    showOnboardingSlide(currentOnboardingSlide + 1);
+                } else {
+                    completeOnboarding();
+                }
+            });
+        }
+        const onboardingSkipBtn = document.getElementById('onboardingSkipBtn');
+        if (onboardingSkipBtn) onboardingSkipBtn.addEventListener('click', completeOnboarding);
+
+        document.querySelectorAll('.onboarding-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                triggerHaptic(8);
+                const idx = parseInt(dot.dataset.index, 10);
+                if (idx) showOnboardingSlide(idx);
+            });
+        });
+
+        const onboardingSampleBtn = document.getElementById('onboardingSampleBtn');
+        if (onboardingSampleBtn) {
+            onboardingSampleBtn.addEventListener('click', () => {
+                loadSampleData();
+                completeOnboarding();
+            });
+        }
+
+        const welcomeTourBtn = document.getElementById('welcomeTourBtn');
+        if (welcomeTourBtn) welcomeTourBtn.addEventListener('click', openOnboardingModal);
+
+        const replayGuideBtn = document.getElementById('replayGuideBtn');
+        if (replayGuideBtn) replayGuideBtn.addEventListener('click', openOnboardingModal);
+
+        // Rating Modal Actions
+        const openRatingBtn = document.getElementById('openRatingBtn');
+        if (openRatingBtn) openRatingBtn.addEventListener('click', openRatingModal);
+
+        document.querySelectorAll('.rating-star-btn').forEach(starBtn => {
+            starBtn.addEventListener('click', () => {
+                triggerHaptic(10);
+                const starVal = parseInt(starBtn.dataset.star, 10);
+                if (starVal) updateRatingStars(starVal);
+            });
+        });
+
+        const ratingSubmitBtn = document.getElementById('ratingSubmitBtn');
+        if (ratingSubmitBtn) ratingSubmitBtn.addEventListener('click', submitRating);
+
+        const ratingDismissBtn = document.getElementById('ratingDismissBtn');
+        if (ratingDismissBtn) ratingDismissBtn.addEventListener('click', () => closeModal('ratingModal'));
+
+        const ratingClose = document.getElementById('ratingClose');
+        if (ratingClose) ratingClose.addEventListener('click', () => closeModal('ratingModal'));
+
         // Modal overlay click to close
         document.getElementById('transactionModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeModal('transactionModal');
@@ -2236,6 +2521,18 @@
                 if (e.target === e.currentTarget) closeModal('categoryBudgetModal');
             });
         }
+        const onboardingModal = document.getElementById('onboardingModal');
+        if (onboardingModal) {
+            onboardingModal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal('onboardingModal');
+            });
+        }
+        const ratingModal = document.getElementById('ratingModal');
+        if (ratingModal) {
+            ratingModal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal('ratingModal');
+            });
+        }
 
         // Keyboard escape
         document.addEventListener('keydown', (e) => {
@@ -2244,6 +2541,8 @@
                 closeModal('confirmModal');
                 closeModal('budgetModal');
                 closeModal('categoryBudgetModal');
+                closeModal('onboardingModal');
+                closeModal('ratingModal');
             }
         });
 
@@ -2412,6 +2711,11 @@
         // Initial render
         updateTxAmountSymbol();
         renderDashboard();
+
+        // Auto-launch beginner guide for first-time users
+        if (!state.settings.onboardingComplete) {
+            setTimeout(openOnboardingModal, 450);
+        }
     }
 
     // Start

@@ -84,6 +84,11 @@
                 <button class="btn-icon theme-toggle-btn" id="quickThemeBtn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="quickThemeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 </button>
+
+                <!-- Settings Button (Omnipresent Header Shortcut) -->
+                <button class="btn-icon header-settings-btn" id="headerSettingsBtn" aria-label="Settings" title="Settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
             </div>
         </header>
 
@@ -100,6 +105,7 @@
                 <div class="welcome-actions">
                     <button type="button" class="btn btn-primary btn-sm" id="welcomeAddBtn">+ Add First Expense</button>
                     <button type="button" class="btn btn-secondary btn-sm" id="welcomeSampleBtn">✨ Explore Demo Data</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="welcomeTourBtn">📖 Beginner Tour</button>
                 </div>
             </div>
 
@@ -169,6 +175,30 @@
                     <span class="chip-label">Budget Status</span>
                     <span class="chip-val" id="quickBudgetStatus">Manage &rarr;</span>
                     <span class="chip-sub">Category tracking</span>
+                </div>
+            </div>
+
+            <!-- Prominent Budget Target Card on Dashboard (High Visibility) -->
+            <div class="card dashboard-budget-card" id="dashboardBudgetCard" style="cursor: pointer;" title="Tap to manage budgets">
+                <div class="card-header" style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="budget-icon-badge">🎯</span>
+                        <h3 style="margin: 0; font-size: 0.95rem;">Monthly Budget Target</h3>
+                    </div>
+                    <span class="badge badge-accent" id="dashBudgetBadge">Active</span>
+                </div>
+                <div class="dash-budget-body">
+                    <div class="dash-budget-row">
+                        <span class="dash-budget-spent" id="dashBudgetSpentLabel">Spent: $0.00</span>
+                        <span class="dash-budget-limit" id="dashBudgetLimitLabel">Limit: $0.00</span>
+                    </div>
+                    <div class="budget-bar dash-budget-bar">
+                        <div class="budget-bar-fill" id="dashBudgetBarFill" style="width: 0%;"></div>
+                    </div>
+                    <div class="dash-budget-footer">
+                        <span class="dash-budget-rem" id="dashBudgetRemLabel">Remaining: $0.00</span>
+                        <span class="dash-budget-link">Open Budgets &rarr;</span>
+                    </div>
                 </div>
             </div>
 
@@ -388,6 +418,14 @@
                     </div>
                 </div>
                 <div class="card settings-card">
+                    <h3>Guide &amp; Feedback</h3>
+                    <p class="settings-desc">Replay the beginner tour or rate Spending Tracker Pro to support continuous development.</p>
+                    <div class="settings-btn-row">
+                        <button type="button" class="btn btn-secondary btn-sm" id="replayGuideBtn">📖 Beginner Tour</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="openRatingBtn">⭐ Rate App (5 Stars)</button>
+                    </div>
+                </div>
+                <div class="card settings-card">
                     <h3>Export &amp; Backup</h3>
                     <p class="settings-desc">Download your data as CSV or back up as JSON.</p>
                     <div class="settings-btn-row">
@@ -427,27 +465,25 @@
             <form id="transactionForm" novalidate>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="txType">Type</label>
-                        <div class="type-toggle" id="typeToggle">
-                            <button type="button" class="type-btn active" data-type="expense">Expense</button>
-                            <button type="button" class="type-btn" data-type="income">Income</button>
+                        <div class="type-toggle modern-type-toggle" id="typeToggle">
+                            <button type="button" class="type-btn active" data-type="expense">
+                                <span class="type-btn-icon">↓</span> Expense
+                            </button>
+                            <button type="button" class="type-btn" data-type="income">
+                                <span class="type-btn-icon">↑</span> Income
+                            </button>
                         </div>
                         <input type="hidden" id="txType" value="expense">
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="txDescription">Description <span class="required">*</span></label>
-                        <input type="text" id="txDescription" placeholder="e.g. Grocery shopping" required autocomplete="off">
-                        <span class="form-error" id="descError"></span>
-                    </div>
-                </div>
-                <div class="form-row form-row-2">
-                    <div class="form-group">
-                        <label for="txAmount">Amount <span class="required">*</span></label>
-                        <div class="amount-input-wrap">
+
+                <!-- Hero Amount Input Field -->
+                <div class="form-row tx-amount-hero-row">
+                    <div class="form-group" style="width: 100%;">
+                        <label for="txAmount" class="hero-amount-label">Amount <span class="required">*</span></label>
+                        <div class="amount-input-wrap modern-amount-wrap">
                             <span class="amount-currency-symbol" id="txAmountSymbol">$</span>
-                            <input type="number" id="txAmount" placeholder="0.00" min="0.01" step="any" inputmode="decimal" pattern="[0-9]*" required>
+                            <input type="number" id="txAmount" class="hero-amount-input" placeholder="0.00" min="0.01" step="any" inputmode="decimal" pattern="[0-9]*" required>
                         </div>
                         <div class="quick-amount-row" id="quickAmountRow">
                             <button type="button" class="quick-amt-chip" data-amt="5">+5</button>
@@ -458,27 +494,56 @@
                         </div>
                         <span class="form-error" id="amountError"></span>
                     </div>
+                </div>
+
+                <!-- Description Field -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="txDescription">Description <span class="required">*</span></label>
+                        <input type="text" id="txDescription" placeholder="e.g. Grocery shopping, Coffee, Rent" required autocomplete="off">
+                        <span class="form-error" id="descError"></span>
+                    </div>
+                </div>
+
+                <!-- Date Field with Quick Shortcuts -->
+                <div class="form-row">
                     <div class="form-group">
                         <label for="txDate">Date <span class="required">*</span></label>
-                        <input type="date" id="txDate" required>
+                        <div class="quick-date-row" id="quickDateRow">
+                            <button type="button" class="quick-date-btn active" id="dateBtnToday">Today</button>
+                            <button type="button" class="quick-date-btn" id="dateBtnYesterday">Yesterday</button>
+                            <div class="quick-date-picker-wrap">
+                                <input type="date" id="txDate" class="tx-date-input" required>
+                            </div>
+                        </div>
                         <span class="form-error" id="dateError"></span>
                     </div>
                 </div>
+
+                <!-- Category Field -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="txCategory">Category</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label for="txCategory" style="margin-bottom: 0;">Category</label>
+                            <span class="category-hint-label">Quick Pick</span>
+                        </div>
                         <div class="quick-category-chips" id="quickCategoryChips"></div>
-                        <select id="txCategory"></select>
+                        <select id="txCategory" style="margin-top: 6px;"></select>
                         <div class="category-suggestion" id="categorySuggestion" style="display:none;"></div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="txNote">Note <span class="optional">(optional)</span></label>
-                        <textarea id="txNote" rows="2" placeholder="Add a note..."></textarea>
+
+                <!-- Collapsible Note Field for Compact Mobile Keypads -->
+                <details class="tx-note-details" id="txNoteDetails">
+                    <summary class="tx-note-summary">+ Add optional note / receipt reference</summary>
+                    <div class="form-row" style="margin-top: 8px;">
+                        <div class="form-group">
+                            <textarea id="txNote" rows="2" placeholder="Add extra notes or memo..."></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-actions">
+                </details>
+
+                <div class="form-actions" style="margin-top: 16px;">
                     <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
                     <button type="submit" class="btn btn-primary" id="modalSubmit">Add Transaction</button>
                 </div>
@@ -545,6 +610,112 @@
         </div>
     </div>
 
+    <!-- ==================== ONBOARDING MODAL ==================== -->
+    <div class="modal-overlay" id="onboardingModal">
+        <div class="modal onboarding-modal" role="dialog" aria-labelledby="onboardingTitle">
+            <div class="modal-drag-handle"></div>
+            <div class="onboarding-carousel" id="onboardingCarousel">
+                <!-- Slide 1 -->
+                <div class="onboarding-slide active" data-slide="1">
+                    <div class="onboarding-illustration">✨</div>
+                    <h3 class="onboarding-title" id="onboardingTitle">Welcome to Spending Tracker Pro</h3>
+                    <p class="onboarding-text">Your ultimate offline personal finance companion. Fast, 100% private, and built for effortless expense tracking.</p>
+                    <div class="onboarding-features-list">
+                        <div class="onboarding-feature-item">
+                            <span class="feat-icon">🔒</span>
+                            <span>100% Offline &amp; Private — zero cloud tracking</span>
+                        </div>
+                        <div class="onboarding-feature-item">
+                            <span class="feat-icon">⚡</span>
+                            <span>Log expenses in under 3 seconds</span>
+                        </div>
+                        <div class="onboarding-feature-item">
+                            <span class="feat-icon">🎯</span>
+                            <span>Live budget goals &amp; category warnings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="onboarding-slide" data-slide="2">
+                    <div class="onboarding-illustration">➕</div>
+                    <h3 class="onboarding-title">Quick 1-Tap Expense Logging</h3>
+                    <p class="onboarding-text">Tap the floating <strong>+</strong> button at the bottom anytime. Pick a quick category chip and enter an amount with the rapid increment buttons.</p>
+                    <div class="onboarding-preview-box">
+                        <div class="preview-chip active">☕ Cafe</div>
+                        <div class="preview-chip">🛒 Groceries</div>
+                        <div class="preview-chip">🚌 Transit</div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="onboarding-slide" data-slide="3">
+                    <div class="onboarding-illustration">🎯</div>
+                    <h3 class="onboarding-title">Budgets &amp; Spending Limits</h3>
+                    <p class="onboarding-text">Never overspend again! Visit the dedicated <strong>Budgets</strong> tab in the bottom dock to set monthly limits and monitor real-time progress bars.</p>
+                    <div class="onboarding-preview-bar">
+                        <div class="preview-bar-fill" style="width: 55%;"></div>
+                    </div>
+                </div>
+
+                <!-- Slide 4 -->
+                <div class="onboarding-slide" data-slide="4">
+                    <div class="onboarding-illustration">🚀</div>
+                    <h3 class="onboarding-title">Ready to Take Control!</h3>
+                    <p class="onboarding-text">Explore interactive visual charts, filter history, and switch between dark/light themes. Would you like to load demo transactions or start fresh?</p>
+                    <div class="onboarding-final-actions">
+                        <button type="button" class="btn btn-secondary btn-sm" id="onboardingSampleBtn">✨ Explore Demo Data</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel Pagination Dots -->
+            <div class="onboarding-dots" id="onboardingDots">
+                <span class="onboarding-dot active" data-index="1"></span>
+                <span class="onboarding-dot" data-index="2"></span>
+                <span class="onboarding-dot" data-index="3"></span>
+                <span class="onboarding-dot" data-index="4"></span>
+            </div>
+
+            <div class="onboarding-actions">
+                <button type="button" class="btn btn-ghost" id="onboardingSkipBtn">Skip</button>
+                <button type="button" class="btn btn-primary" id="onboardingNextBtn">Next &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== RATING MODAL ==================== -->
+    <div class="modal-overlay" id="ratingModal">
+        <div class="modal modal-sm rating-modal" role="dialog" aria-labelledby="ratingTitle">
+            <div class="modal-drag-handle"></div>
+            <div class="modal-header">
+                <h3 id="ratingTitle">Do you like our app?</h3>
+                <button class="btn-icon modal-close" id="ratingClose" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="rating-body">
+                <div class="rating-badge-icon">⭐</div>
+                <p class="rating-desc">Your rating helps us keep improving Spending Tracker Pro. How would you rate your experience?</p>
+                <div class="rating-stars-row" id="ratingStarsRow">
+                    <button type="button" class="rating-star-btn selected" data-star="1" aria-label="1 star">★</button>
+                    <button type="button" class="rating-star-btn selected" data-star="2" aria-label="2 stars">★</button>
+                    <button type="button" class="rating-star-btn selected" data-star="3" aria-label="3 stars">★</button>
+                    <button type="button" class="rating-star-btn selected" data-star="4" aria-label="4 stars">★</button>
+                    <button type="button" class="rating-star-btn selected" data-star="5" aria-label="5 stars">★</button>
+                </div>
+                <div class="rating-feedback-label" id="ratingFeedbackLabel">⭐⭐⭐⭐⭐ Outstanding! 5 Stars</div>
+                <div class="rating-comment-wrap">
+                    <input type="text" id="ratingCommentInput" placeholder="Tell us what you love or want improved... (optional)" class="settings-input" style="font-size: 0.85rem;">
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 18px;">
+                <button type="button" class="btn btn-ghost" id="ratingDismissBtn">Maybe Later</button>
+                <button type="button" class="btn btn-primary" id="ratingSubmitBtn">Submit Rating ⭐</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Telegram-Style Floating Bottom Dock -->
     <nav class="telegram-bottom-nav" id="telegramBottomNav" aria-label="Main Navigation">
         <button type="button" class="tg-nav-item active" data-page="dashboard" aria-label="Overview">
@@ -554,6 +725,17 @@
             <span class="tg-label">Overview</span>
         </button>
 
+        <button type="button" class="tg-nav-item" data-page="budgets" aria-label="Budgets">
+            <div class="tg-icon-pill">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <span class="tg-label">Budgets</span>
+        </button>
+
+        <button type="button" class="tg-action-btn" id="tgAddBtn" aria-label="Add transaction">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+
         <button type="button" class="tg-nav-item" data-page="transactions" aria-label="History">
             <div class="tg-icon-pill">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
@@ -561,22 +743,11 @@
             <span class="tg-label">History</span>
         </button>
 
-        <button type="button" class="tg-action-btn" id="tgAddBtn" aria-label="Add transaction">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-
         <button type="button" class="tg-nav-item" data-page="analytics" aria-label="Analytics">
             <div class="tg-icon-pill">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </div>
             <span class="tg-label">Analytics</span>
-        </button>
-
-        <button type="button" class="tg-nav-item" data-page="settings" aria-label="Settings">
-            <div class="tg-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-            <span class="tg-label">Settings</span>
         </button>
     </nav>
 
