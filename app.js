@@ -1108,6 +1108,14 @@
         });
     }
 
+    function updateTxAmountSymbol() {
+        const symbolEl = document.getElementById('txAmountSymbol');
+        if (symbolEl) {
+            const cfg = CURRENCY_CONFIG[state.settings.currency] || CURRENCY_CONFIG.USD;
+            symbolEl.textContent = cfg.symbol;
+        }
+    }
+
     function openAddTransaction() {
         state.editingId = null;
         document.getElementById('modalTitle').textContent = 'Add Transaction';
@@ -1118,6 +1126,7 @@
         populateCategories('expense');
         renderQuickCategoryChips('expense');
         document.getElementById('txDate').value = todayStr();
+        updateTxAmountSymbol();
         clearFormErrors();
         document.getElementById('categorySuggestion').style.display = 'none';
         openModal('transactionModal');
@@ -1134,6 +1143,7 @@
         populateCategories(tx.type);
         document.getElementById('txDescription').value = tx.description;
         document.getElementById('txAmount').value = tx.amount;
+        updateTxAmountSymbol();
         document.getElementById('txDate').value = tx.date;
         document.getElementById('txCategory').value = tx.category;
         renderQuickCategoryChips(tx.type, tx.category);
@@ -2194,6 +2204,22 @@
             });
         }
 
+        // Quick amount increment buttons
+        document.querySelectorAll('#quickAmountRow .quick-amt-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                triggerHaptic(10);
+                const amtToAdd = parseFloat(chip.dataset.amt) || 0;
+                const amtInput = document.getElementById('txAmount');
+                if (amtInput) {
+                    const current = parseFloat(amtInput.value) || 0;
+                    const next = Math.round((current + amtToAdd) * 100) / 100;
+                    amtInput.value = next;
+                    document.getElementById('amountError').textContent = '';
+                    amtInput.classList.remove('error');
+                }
+            });
+        });
+
         // Modal overlay click to close
         document.getElementById('transactionModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeModal('transactionModal');
@@ -2309,6 +2335,7 @@
             state.settings.currency = e.target.value;
             saveSettings();
             document.getElementById('sidebarCurrency').textContent = state.settings.currency;
+            updateTxAmountSymbol();
             showToast(`Currency changed to ${state.settings.currency}. Display format updated.`, 'success');
             refreshCurrentPage();
         });
@@ -2383,6 +2410,7 @@
         }
 
         // Initial render
+        updateTxAmountSymbol();
         renderDashboard();
     }
 

@@ -1148,25 +1148,30 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
 /* Quick Category Preset Chips */
 .quick-category-chips {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
-    padding: 6px 2px 4px;
-    margin-top: 6px;
+    padding: 8px 4px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    width: 100%;
+    min-width: 0;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
 }
 .quick-category-chips::-webkit-scrollbar { display: none; }
 .quick-cat-chip {
+    flex-shrink: 0 !important;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 5px 11px;
-    background: var(--bg-surface);
+    gap: 6px;
+    padding: 7px 15px;
+    min-height: 36px;
+    background: var(--bg-raised);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-pill);
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     white-space: nowrap;
     cursor: pointer;
     transition: all var(--transition);
@@ -1177,12 +1182,69 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
     border-color: var(--accent);
     color: var(--text-primary);
 }
+.quick-cat-chip:active {
+    transform: scale(0.96);
+}
 .quick-cat-chip.active {
-    background: var(--accent-subtle);
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 3px 12px var(--accent-glow);
+}
+
+/* Amount Input with Currency Symbol */
+.amount-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.amount-currency-symbol {
+    position: absolute;
+    left: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent);
+    pointer-events: none;
+    user-select: none;
+    z-index: 2;
+}
+.amount-input-wrap input {
+    padding-left: 28px !important;
+    width: 100%;
+}
+
+/* Quick Amount Increment Pills */
+.quick-amount-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.quick-amount-row::-webkit-scrollbar { display: none; }
+.quick-amt-chip {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.quick-amt-chip:hover {
     border-color: var(--accent);
     color: var(--accent);
-    font-weight: 700;
-    transform: scale(1.02);
+}
+.quick-amt-chip:active {
+    transform: scale(0.95);
+    background: var(--accent-subtle);
 }
 
 /* Form */
