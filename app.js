@@ -125,6 +125,15 @@
         return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
     }
 
+    /** Trigger native haptic vibration on mobile devices */
+    function triggerHaptic(duration = 10) {
+        try {
+            if (window.navigator && typeof window.navigator.vibrate === 'function') {
+                window.navigator.vibrate(duration);
+            }
+        } catch (_) {}
+    }
+
     /** Safely store integer minor units for calculations (avoid float rounding) */
     function toMinor(amount, decimals) {
         // Convert to minor units by multiplying by 10^decimals
@@ -499,6 +508,7 @@
     // ───────── Navigation ─────────
 
     function navigateTo(page) {
+        triggerHaptic(8);
         state.currentPage = page;
 
         // Update nav items (both sidebar and Telegram bottom dock)
@@ -602,7 +612,32 @@
         document.getElementById('totalSpending').textContent = formatCurrency(totals.expense);
         document.getElementById('totalIncome').textContent = formatCurrency(totals.income);
         document.getElementById('totalSavings').textContent = formatCurrency(totals.savings);
-        document.getElementById('transactionCount').textContent = totals.count.toString();
+        const txCountEl = document.getElementById('transactionCount');
+        if (txCountEl) txCountEl.textContent = totals.count.toString();
+
+        // Update hero donut center anchor
+        const heroCenterVal = document.getElementById('heroCenterVal');
+        const heroCenterSub = document.getElementById('heroCenterSub');
+        if (heroCenterVal && heroCenterSub) {
+            if (totals.expense > 0) {
+                heroCenterSub.textContent = 'EXPENSE';
+                heroCenterVal.textContent = formatCurrency(totals.expense);
+            } else {
+                heroCenterSub.textContent = 'SPENT';
+                heroCenterVal.textContent = formatCurrency(0);
+            }
+        }
+
+        // Dynamic Net Savings badge color
+        const heroNetPill = document.getElementById('heroNetPill');
+        if (heroNetPill) {
+            heroNetPill.classList.remove('positive', 'negative');
+            if (totals.savings > 0) {
+                heroNetPill.classList.add('positive');
+            } else if (totals.savings < 0) {
+                heroNetPill.classList.add('negative');
+            }
+        }
 
         // Budget remaining
         const budget = state.settings.monthlyBudget;
@@ -752,6 +787,12 @@
             canvas.style.display = 'none';
             emptyEl.style.display = 'flex';
             if (captionEl) captionEl.textContent = 'No Expenses';
+            const heroCenterVal = document.getElementById('heroCenterVal');
+            const heroCenterSub = document.getElementById('heroCenterSub');
+            if (heroCenterVal && heroCenterSub) {
+                heroCenterSub.textContent = 'NO EXPENSES';
+                heroCenterVal.textContent = '—';
+            }
             if (charts.dashDoughnut) { charts.dashDoughnut.destroy(); charts.dashDoughnut = null; }
             return;
         }
@@ -933,6 +974,59 @@
 
     // ───────── Transaction Modal ─────────
 
+    const QUICK_PRESETS = {
+        expense: [
+            { cat: 'Food & Groceries', label: '🛒 Groceries' },
+            { cat: 'Restaurants & Cafes', label: '☕ Cafe' },
+            { cat: 'Transportation', label: '🚌 Transit' },
+            { cat: 'Shopping', label: '🛍️ Shopping' },
+            { cat: 'Utilities', label: '⚡ Bills' },
+            { cat: 'Subscriptions', label: '📱 Subs' },
+            { cat: 'Entertainment', label: '🎬 Fun' },
+            { cat: 'Health', label: '💊 Health' },
+        ],
+        income: [
+            { cat: 'Salary', label: '💰 Salary' },
+            { cat: 'Freelance Income', label: '💻 Freelance' },
+            { cat: 'Gifts', label: '🎁 Gift' },
+            { cat: 'Scholarships', label: '🎓 Scholarship' },
+            { cat: 'Business Income', label: '📈 Business' },
+        ]
+    };
+
+    function renderQuickCategoryChips(type, selectedCat = '') {
+        const container = document.getElementById('quickCategoryChips');
+        if (!container) return;
+        const presets = QUICK_PRESETS[type] || QUICK_PRESETS.expense;
+        const currentCat = selectedCat || document.getElementById('txCategory').value;
+
+        container.innerHTML = presets.map(p => `
+            <button type="button" class="quick-cat-chip ${p.cat === currentCat ? 'active' : ''}" data-cat="${escapeHtml(p.cat)}">
+                ${p.label}
+            </button>
+        `).join('');
+
+        container.querySelectorAll('.quick-cat-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerHaptic(12);
+                const cat = chip.dataset.cat;
+                const catSel = document.getElementById('txCategory');
+                if (catSel) catSel.value = cat;
+
+                container.querySelectorAll('.quick-cat-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+
+                // Auto-fill description if currently empty
+                const descInput = document.getElementById('txDescription');
+                if (descInput && !descInput.value.trim()) {
+                    const cleanLabel = chip.textContent.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/gu, '').trim();
+                    descInput.value = cleanLabel;
+                }
+            });
+        });
+    }
+
     function openAddTransaction() {
         state.editingId = null;
         document.getElementById('modalTitle').textContent = 'Add Transaction';
@@ -941,6 +1035,7 @@
         document.getElementById('txType').value = 'expense';
         updateTypeToggle('expense');
         populateCategories('expense');
+        renderQuickCategoryChips('expense');
         document.getElementById('txDate').value = todayStr();
         clearFormErrors();
         document.getElementById('categorySuggestion').style.display = 'none';
@@ -960,6 +1055,7 @@
         document.getElementById('txAmount').value = tx.amount;
         document.getElementById('txDate').value = tx.date;
         document.getElementById('txCategory').value = tx.category;
+        renderQuickCategoryChips(tx.type, tx.category);
         document.getElementById('txNote').value = tx.note || '';
         clearFormErrors();
         document.getElementById('categorySuggestion').style.display = 'none';
@@ -971,6 +1067,7 @@
             btn.classList.toggle('active', btn.dataset.type === type);
         });
         document.getElementById('txType').value = type;
+        renderQuickCategoryChips(type);
     }
 
     function populateCategories(type) {
@@ -1033,6 +1130,7 @@
     function submitTransaction(e) {
         e.preventDefault();
         if (!validateTransactionForm()) return;
+        triggerHaptic(20);
 
         const type = document.getElementById('txType').value;
         const description = document.getElementById('txDescription').value.trim();
@@ -1775,6 +1873,7 @@
         const quickThemeBtn = document.getElementById('quickThemeBtn');
         if (quickThemeBtn) {
             quickThemeBtn.addEventListener('click', () => {
+                triggerHaptic(10);
                 const current = document.documentElement.getAttribute('data-theme') || 'dark';
                 const next = current === 'dark' ? 'light' : 'dark';
                 applyTheme(next, true);
@@ -1799,7 +1898,10 @@
 
         const tgAdd = document.getElementById('tgAddBtn');
         if (tgAdd) {
-            tgAdd.addEventListener('click', openAddTransaction);
+            tgAdd.addEventListener('click', () => {
+                triggerHaptic(15);
+                openAddTransaction();
+            });
         }
 
         // Month navigation
@@ -1837,6 +1939,17 @@
 
         // Description input for category suggestion
         document.getElementById('txDescription').addEventListener('input', handleDescriptionInput);
+
+        // Category select change to sync quick chips
+        const txCatSel = document.getElementById('txCategory');
+        if (txCatSel) {
+            txCatSel.addEventListener('change', (e) => {
+                const currentVal = e.target.value;
+                document.querySelectorAll('.quick-cat-chip').forEach(c => {
+                    c.classList.toggle('active', c.dataset.cat === currentVal);
+                });
+            });
+        }
 
         // Modal overlay click to close
         document.getElementById('transactionModal').addEventListener('click', (e) => {

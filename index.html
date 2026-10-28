@@ -97,6 +97,10 @@
                 <div class="hero-chart-col">
                     <div class="hero-chart-wrap">
                         <canvas id="dashDoughnutChart"></canvas>
+                        <div class="hero-chart-center" id="heroChartCenter">
+                            <span class="hero-center-sub" id="heroCenterSub">EXPENSE</span>
+                            <span class="hero-center-val" id="heroCenterVal">$0</span>
+                        </div>
                         <div class="chart-empty-state" id="dashDoughnutEmpty" style="display:none;">
                             <span style="font-size:0.75rem;color:var(--text-muted);text-align:center;">No expenses</span>
                         </div>
@@ -129,7 +133,7 @@
 
                     <!-- Badges Row -->
                     <div class="hero-bottom-row">
-                        <div class="hero-pill-badge" title="Net Savings">
+                        <div class="hero-pill-badge" id="heroNetPill" title="Net Savings">
                             <span>Net:</span>
                             <strong id="totalSavings">—</strong>
                             <span id="savingsComparison" style="display:none;"></span>
@@ -370,6 +374,7 @@
     <!-- ==================== TRANSACTION MODAL ==================== -->
     <div class="modal-overlay" id="transactionModal">
         <div class="modal" role="dialog" aria-labelledby="modalTitle">
+            <div class="modal-drag-handle"></div>
             <div class="modal-header">
                 <h3 id="modalTitle">Add Transaction</h3>
                 <button class="btn-icon modal-close" id="modalClose" aria-label="Close">
@@ -410,6 +415,7 @@
                     <div class="form-group">
                         <label for="txCategory">Category</label>
                         <select id="txCategory"></select>
+                        <div class="quick-category-chips" id="quickCategoryChips"></div>
                         <div class="category-suggestion" id="categorySuggestion" style="display:none;"></div>
                     </div>
                 </div>
@@ -430,6 +436,7 @@
     <!-- ==================== CONFIRM MODAL ==================== -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal modal-sm" role="dialog" aria-labelledby="confirmTitle">
+            <div class="modal-drag-handle"></div>
             <div class="modal-header">
                 <h3 id="confirmTitle">Confirm</h3>
             </div>
@@ -444,6 +451,7 @@
     <!-- Budget Edit Modal -->
     <div class="modal-overlay" id="budgetModal">
         <div class="modal modal-sm" role="dialog" aria-labelledby="budgetModalTitle">
+            <div class="modal-drag-handle"></div>
             <div class="modal-header">
                 <h3 id="budgetModalTitle">Set Monthly Budget</h3>
                 <button class="btn-icon modal-close" id="budgetModalClose" aria-label="Close">
