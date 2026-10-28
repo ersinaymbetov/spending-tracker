@@ -92,6 +92,17 @@
             <!-- Hidden greeting anchor to keep app.js happy -->
             <div id="dashboardGreeting" style="display:none;"><h2 style="display:none;"></h2><p id="greetingSub" style="display:none;"></p></div>
 
+            <!-- First-time Onboarding Card (shown when 0 transactions) -->
+            <div class="welcome-card" id="welcomeCard" style="display:none;">
+                <div class="welcome-badge">GET STARTED</div>
+                <h3>Welcome to Spending Tracker</h3>
+                <p>Track expenses effortlessly, see visual breakdowns, and take control of your personal finance.</p>
+                <div class="welcome-actions">
+                    <button type="button" class="btn btn-primary btn-sm" id="welcomeAddBtn">+ Add First Expense</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="welcomeSampleBtn">✨ Explore Demo Data</button>
+                </div>
+            </div>
+
             <!-- Modern Hero Overview Card (Pie Chart Left, Expense & Income Right) -->
             <div class="hero-overview-card">
                 <div class="hero-chart-col">
@@ -177,6 +188,7 @@
                 <div class="search-box">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="searchInput" placeholder="Search transactions..." aria-label="Search transactions">
+                    <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Clear search" style="display:none;">&times;</button>
                 </div>
                 <div class="filter-group">
                     <select id="filterType" aria-label="Filter by type">
@@ -196,6 +208,7 @@
                 </div>
             </div>
             <div class="transactions-table-wrap">
+                <!-- Desktop Table View -->
                 <table class="transactions-table" id="transactionsTable">
                     <thead>
                         <tr>
@@ -208,6 +221,10 @@
                     </thead>
                     <tbody id="transactionsBody"></tbody>
                 </table>
+
+                <!-- Mobile Native Cards List View -->
+                <div class="transactions-mobile-list" id="transactionsMobileList"></div>
+
                 <div class="empty-state" id="transactionsEmpty" style="display:none;">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     <p>No transactions found</p>
@@ -219,8 +236,16 @@
 
         <!-- ==================== ANALYTICS PAGE ==================== -->
         <div class="page" id="page-analytics">
+            <div class="analytics-filter-bar">
+                <div class="analytics-seg-control" id="analyticsSegmented">
+                    <button type="button" class="analytics-seg-btn active" data-view="all">All</button>
+                    <button type="button" class="analytics-seg-btn" data-view="categories">Categories</button>
+                    <button type="button" class="analytics-seg-btn" data-view="trends">Trends</button>
+                    <button type="button" class="analytics-seg-btn" data-view="daily">Daily</button>
+                </div>
+            </div>
             <div class="analytics-grid">
-                <div class="card chart-card">
+                <div class="card chart-card" id="cardAnalyticsCategories">
                     <div class="card-header"><h3>Spending by Category</h3></div>
                     <div class="chart-container chart-container-doughnut">
                         <canvas id="categoryDoughnut"></canvas>
@@ -229,7 +254,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card chart-card">
+                <div class="card chart-card" id="cardAnalyticsTrends">
                     <div class="card-header"><h3>Monthly Trends</h3></div>
                     <div class="chart-container">
                         <canvas id="monthlyTrendsChart"></canvas>
@@ -238,7 +263,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card chart-card">
+                <div class="card chart-card" id="cardAnalyticsDaily">
                     <div class="card-header"><h3>Daily Spending</h3></div>
                     <div class="chart-container">
                         <canvas id="dailySpendingChart"></canvas>
@@ -247,7 +272,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card insights-card">
+                <div class="card insights-card" id="cardAnalyticsInsights">
                     <div class="card-header"><h3>Financial Insights</h3></div>
                     <div id="insightsContainer" class="insights-list">
                         <div class="empty-state">
@@ -282,6 +307,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3>Category Budgets</h3>
+                    <button class="btn btn-ghost btn-sm" id="editCategoryBudgetsBtn">Edit Budgets</button>
                 </div>
                 <div id="categoryBudgets" class="category-budgets-list"></div>
             </div>
@@ -310,6 +336,22 @@
                     </div>
                 </div>
 
+                <!-- Haptic Feedback Selector -->
+                <div class="card settings-card">
+                    <h3>Haptics &amp; Tactile Feedback</h3>
+                    <p class="settings-desc">Provide subtle native vibrations when tapping buttons, switching tabs, and logging transactions.</p>
+                    <div class="theme-segmented-control" id="hapticsSegmented">
+                        <button type="button" class="theme-seg-btn active" data-haptics-val="true">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
+                            <span>Enabled</span>
+                        </button>
+                        <button type="button" class="theme-seg-btn" data-haptics-val="false">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M12 2v4M12 18v4M17 5v8M7 5v14M2 9v6M22 9v6"/></svg>
+                            <span>Disabled</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="card settings-card">
                     <h3>Currency</h3>
                     <p class="settings-desc">Choose your display currency. This changes formatting only — it does not convert amounts.</p>
@@ -328,7 +370,7 @@
                     <h3>Monthly Budget</h3>
                     <p class="settings-desc">Set your overall monthly expense budget.</p>
                     <div class="settings-input-row">
-                        <input type="number" id="settingsBudgetInput" min="0" step="any" placeholder="e.g. 1000" class="settings-input" aria-label="Monthly budget amount">
+                        <input type="number" id="settingsBudgetInput" min="0" step="any" placeholder="e.g. 1000" inputmode="decimal" pattern="[0-9]*" class="settings-input" aria-label="Monthly budget amount">
                         <button class="btn btn-primary btn-sm" id="saveBudgetBtn">Save</button>
                     </div>
                 </div>
@@ -350,7 +392,8 @@
                     <p class="settings-desc">Download your data as CSV or back up as JSON.</p>
                     <div class="settings-btn-row">
                         <button class="btn btn-secondary btn-sm" id="exportCsvBtn">Export CSV</button>
-                        <button class="btn btn-secondary btn-sm" id="exportJsonBtn">Export JSON Backup</button>
+                        <button class="btn btn-secondary btn-sm" id="exportJsonBtn">Export JSON</button>
+                        <button class="btn btn-secondary btn-sm" id="copyJsonBtn">Copy JSON</button>
                     </div>
                 </div>
                 <div class="card settings-card">
@@ -402,7 +445,7 @@
                 <div class="form-row form-row-2">
                     <div class="form-group">
                         <label for="txAmount">Amount <span class="required">*</span></label>
-                        <input type="number" id="txAmount" placeholder="0.00" min="0.01" step="any" required>
+                        <input type="number" id="txAmount" placeholder="0.00" min="0.01" step="any" inputmode="decimal" pattern="[0-9]*" required>
                         <span class="form-error" id="amountError"></span>
                     </div>
                     <div class="form-group">
@@ -461,11 +504,32 @@
             <form id="budgetForm">
                 <div class="form-group">
                     <label for="budgetInput">Monthly Expense Budget</label>
-                    <input type="number" id="budgetInput" min="0" step="any" placeholder="e.g. 1000">
+                    <input type="number" id="budgetInput" min="0" step="any" placeholder="e.g. 1000" inputmode="decimal" pattern="[0-9]*">
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-ghost" id="budgetCancel">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Budgets Edit Modal -->
+    <div class="modal-overlay" id="categoryBudgetModal">
+        <div class="modal" role="dialog" aria-labelledby="catBudgetModalTitle">
+            <div class="modal-drag-handle"></div>
+            <div class="modal-header">
+                <h3 id="catBudgetModalTitle">Category Expense Budgets</h3>
+                <button class="btn-icon modal-close" id="catBudgetModalClose" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="categoryBudgetForm">
+                <p class="settings-desc" style="margin-bottom:14px;">Set monthly limits for specific categories. Leave blank for no limit.</p>
+                <div id="catBudgetModalInputs" class="cat-budget-inputs-list"></div>
+                <div class="form-actions" style="margin-top:16px;">
+                    <button type="button" class="btn btn-ghost" id="catBudgetCancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Budgets</button>
                 </div>
             </form>
         </div>
