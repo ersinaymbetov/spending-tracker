@@ -38,7 +38,8 @@
     --yellow-subtle: rgba(245, 158, 11, 0.15);
     --orange: #fb923c;
 
-    /* Telegram Bottom Nav */
+    /* Windows 11 Taskbar */
+    --taskbar-bg: rgba(14, 18, 26, 0.92);
     --nav-bg: rgba(18, 23, 34, 0.88);
     --nav-border: rgba(255, 255, 255, 0.1);
     --nav-pill-active: rgba(36, 161, 222, 0.22);
@@ -111,7 +112,8 @@
     --yellow-subtle: rgba(217, 119, 6, 0.12);
     --orange: #ea580c;
 
-    /* Telegram Bottom Nav - Light Mode Glass */
+    /* Windows 11 Taskbar - Light */
+    --taskbar-bg: rgba(255, 255, 255, 0.92);
     --nav-bg: rgba(255, 255, 255, 0.88);
     --nav-border: rgba(15, 23, 42, 0.08);
     --nav-pill-active: rgba(2, 132, 199, 0.14);
@@ -1030,117 +1032,203 @@ button:active, .btn:active, .nav-item:active {
 .import-preview strong { color: var(--text-primary); }
 .import-actions { display: flex; gap: 8px; margin-top: 12px; }
 
-/* ---------- Telegram-Style Floating Bottom Dock ---------- */
-.telegram-bottom-nav {
+/* ---------- Windows 11 Vanilla Taskbar ---------- */
+.app-taskbar {
     display: none;
     position: fixed;
-    bottom: calc(14px + var(--safe-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 24px);
-    max-width: 440px;
-    height: 64px;
-    background: var(--nav-bg);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    border: 1px solid var(--nav-border);
-    border-radius: var(--radius-pill);
-    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.38);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(54px + var(--safe-bottom, 0px));
+    padding-bottom: var(--safe-bottom, 0px);
+    background: var(--taskbar-bg);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border-top: 1px solid var(--border-subtle);
+    border-radius: 0;
+    box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.12);
     align-items: center;
-    justify-content: space-around;
-    padding: 4px 6px;
+    justify-content: center;
     z-index: 500;
-    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease;
+    transition: transform 220ms cubic-bezier(0.1, 0.9, 0.2, 1), opacity 180ms ease;
 }
 
-/* Hide Telegram Bottom Dock completely when modal is open */
-body.modal-open .telegram-bottom-nav,
-body:has(.modal-overlay.active) .telegram-bottom-nav,
-.modal-overlay.active ~ .telegram-bottom-nav {
-    transform: translate(-50%, 160%) scale(0.9) !important;
+/* Hide Taskbar completely when modal is open or virtual keyboard active */
+body.modal-open .app-taskbar,
+body:has(.modal-overlay.active) .app-taskbar,
+.modal-overlay.active ~ .app-taskbar,
+body.keyboard-open .app-taskbar {
+    transform: translateY(100%) !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-.tg-nav-item {
+.taskbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    max-width: 480px;
+    height: 100%;
+    padding: 0 4px;
+}
+
+.taskbar-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
-    color: var(--nav-item-inactive);
-    padding: 3px 6px;
+    flex: 1;
+    max-width: 76px;
+    min-width: 52px;
+    height: 44px;
+    border-radius: 6px;
     position: relative;
-    border-radius: 18px;
-    transition: all var(--transition);
-    cursor: pointer;
+    color: var(--text-muted);
     background: transparent;
     border: none;
     outline: none;
+    cursor: pointer;
+    text-decoration: none;
     -webkit-tap-highlight-color: transparent;
-    min-width: 58px;
+    transition: background 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
-.tg-icon-pill {
-    padding: 3px 14px;
-    border-radius: 16px;
+.taskbar-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.taskbar-item:active {
+    transform: scale(0.96);
+}
+
+.taskbar-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition);
-}
-.tg-icon-pill svg {
-    stroke: currentColor;
-    transition: transform var(--transition), stroke var(--transition);
+    width: 22px;
+    height: 22px;
+    transition: transform var(--transition);
 }
 
-.tg-label {
-    font-size: 0.69rem;
+.taskbar-icon svg {
+    stroke: currentColor;
+    transition: stroke var(--transition);
+}
+
+.taskbar-label {
+    font-size: 0.65rem;
     font-weight: 500;
-    margin-top: 2px;
+    margin-top: 1px;
     letter-spacing: 0.01em;
+    line-height: 1;
     transition: color var(--transition), font-weight var(--transition);
 }
 
-/* Active State (Telegram style pill) */
-.tg-nav-item.active {
-    color: var(--nav-text-active);
-}
-.tg-nav-item.active .tg-icon-pill {
-    background: var(--nav-pill-active);
-    color: var(--nav-icon-active);
-}
-.tg-nav-item.active .tg-icon-pill svg {
-    stroke: var(--nav-icon-active);
-    transform: scale(1.06);
-}
-.tg-nav-item.active .tg-label {
-    color: var(--nav-text-active);
-    font-weight: 700;
+/* Windows 11 Active State: Accent Color + Underline Indicator Pill */
+.taskbar-item.active {
+    color: var(--accent);
 }
 
-/* Quick Add Button in Telegram Dock */
-.tg-action-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent) 0%, #0088cc 100%);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 14px var(--accent-glow);
-    transition: transform var(--transition), box-shadow var(--transition);
+.taskbar-item.active .taskbar-icon svg {
+    stroke: var(--accent);
+}
+
+.taskbar-item.active .taskbar-label {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.taskbar-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent-glow);
+    animation: winPillIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes winPillIn {
+    0% { width: 0; opacity: 0; }
+    100% { width: 16px; opacity: 1; }
+}
+
+/* Custom Category SVG Icons */
+.cat-icon-svg {
+    display: inline-block;
+    vertical-align: middle;
     flex-shrink: 0;
 }
-.tg-action-btn:active {
-    transform: scale(0.92);
+.tx-card-icon .cat-icon-svg {
+    width: 20px;
+    height: 20px;
 }
-.tg-action-btn svg {
-    stroke: #ffffff;
+.quick-cat-chip .cat-icon-svg {
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
 }
+.cat-budget-icon .cat-icon-svg,
+.settings-cat-icon .cat-icon-svg {
+    width: 15px;
+    height: 15px;
+    margin-right: 6px;
+}
+.insight-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
+
+/* Top Bar Minimal Actions */
+.quick-add-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border: 1px solid rgba(36, 161, 222, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.quick-add-btn:hover {
+    background: var(--accent);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+/* Dashboard Controls Bar */
+.dashboard-controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.dash-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+/* Fallback for legacy class selectors */
+.telegram-bottom-nav { display: none !important; }
 
 /* ---------- Modal ---------- */
 .modal-overlay {
@@ -1399,8 +1487,8 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
 }
 
 @media (max-width: 768px) {
-    /* Show Telegram bottom dock */
-    .telegram-bottom-nav { display: flex; }
+    /* Show Windows 11 Taskbar */
+    .app-taskbar { display: flex; }
     
     /* Hide desktop sidebar */
     .sidebar { display: none !important; }
@@ -1411,7 +1499,7 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
 
     .main-content {
         margin-left: 0;
-        padding: 0 14px calc(90px + var(--safe-bottom, 0px));
+        padding: 0 14px calc(68px + var(--safe-bottom, 0px));
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
@@ -1503,7 +1591,7 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
 
 @media (max-width: 480px) {
     .main-content {
-        padding: 0 12px calc(86px + var(--safe-bottom, 0px));
+        padding: 0 12px calc(68px + var(--safe-bottom, 0px));
     }
     .top-bar {
         padding-top: calc(10px + var(--safe-top, 0px));
@@ -1580,25 +1668,22 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
         width: 100%;
         min-width: 0;
     }
-    .telegram-bottom-nav {
-        width: calc(100% - 16px);
-        height: 60px;
-        padding: 2px 4px;
+    .app-taskbar {
+        height: calc(50px + var(--safe-bottom, 0px));
+        padding-bottom: var(--safe-bottom, 0px);
     }
-    .tg-nav-item {
+    .taskbar-item {
         min-width: 0;
         flex: 1;
+        height: 42px;
         padding: 2px;
     }
-    .tg-icon-pill {
-        padding: 2px 8px;
+    .taskbar-icon svg {
+        width: 18px;
+        height: 18px;
     }
-    .tg-label {
-        font-size: 0.62rem;
-    }
-    .tg-action-btn {
-        width: 40px;
-        height: 40px;
+    .taskbar-label {
+        font-size: 0.60rem;
     }
     .analytics-seg-btn {
         padding: 5px 6px;
@@ -1640,7 +1725,7 @@ body:has(.modal-overlay.active) .telegram-bottom-nav,
 }
 
 /* Virtual Keyboard Auto-hide for Floating Dock */
-body.keyboard-open .telegram-bottom-nav {
+body.keyboard-open .app-taskbar, body.keyboard-open .telegram-bottom-nav {
     transform: translate(-50%, 200%) !important;
     opacity: 0 !important;
     pointer-events: none !important;
@@ -2065,30 +2150,24 @@ body.keyboard-open .telegram-bottom-nav {
     margin-bottom: 6px;
 }
 
-/* ---------- Silky Micro-Animations ---------- */
+/* ---------- Silky Windows Fluent Micro-Animations ---------- */
+.page {
+    display: none;
+    opacity: 0;
+}
 .page.active {
-    animation: pageSlideUp 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    display: block;
+    animation: winFluentPageIn 240ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
 }
-@keyframes pageSlideUp {
-    0% { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-.tg-action-btn {
-    animation: fabBreath 3.2s ease-in-out infinite;
-}
-@keyframes fabBreath {
-    0%, 100% { box-shadow: 0 4px 14px var(--accent-glow); }
-    50% { box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55); }
-}
-
-.tg-nav-item.active .tg-icon-pill {
-    animation: dockPop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes dockPop {
-    0% { transform: scale(0.85); }
-    60% { transform: scale(1.12); }
-    100% { transform: scale(1.06); }
+@keyframes winFluentPageIn {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes starPop {

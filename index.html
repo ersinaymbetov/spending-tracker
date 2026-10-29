@@ -33,8 +33,12 @@
         </div>
         <nav class="sidebar-nav">
             <a href="#" class="nav-item active" data-page="dashboard">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span>Overview</span>
+            </a>
+            <a href="#" class="nav-item" data-page="budgets">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <span>Budgets</span>
             </a>
             <a href="#" class="nav-item" data-page="transactions">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
@@ -44,12 +48,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 <span>Analytics</span>
             </a>
-            <a href="#" class="nav-item" data-page="budgets">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                <span>Budgets</span>
-            </a>
             <a href="#" class="nav-item" data-page="settings">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span>Settings</span>
             </a>
         </nav>
@@ -63,31 +63,20 @@
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <!-- Unified Compact Native Top Bar -->
+        <!-- Minimal Top Bar Header -->
         <header class="top-bar">
             <div class="top-bar-left">
                 <h1 class="page-title" id="pageTitle">Overview</h1>
             </div>
             <div class="top-bar-right">
-                <!-- Integrated Compact Month Pill (Only on Overview, Analytics, Budgets) -->
-                <div class="month-nav-pill" id="monthNav">
-                    <button class="month-nav-arrow" id="prevMonth" aria-label="Previous month">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <span class="month-pill-label" id="monthLabel">October 2026</span>
-                    <button class="month-nav-arrow" id="nextMonth" aria-label="Next month">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                    </button>
-                </div>
-
-                <!-- Theme Toggle Button -->
-                <button class="btn-icon theme-toggle-btn" id="quickThemeBtn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="quickThemeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <!-- Minimal Quick Add Icon -->
+                <button class="btn-icon quick-add-btn" id="quickAddBtn" aria-label="Add Transaction" title="Add Transaction">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
 
-                <!-- Settings Button (Omnipresent Header Shortcut) -->
-                <button class="btn-icon header-settings-btn" id="headerSettingsBtn" aria-label="Settings" title="Settings">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <!-- Minimal Theme Toggle Button -->
+                <button class="btn-icon theme-toggle-btn" id="quickThemeBtn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="quickThemeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 </button>
             </div>
         </header>
@@ -97,6 +86,23 @@
             <!-- Hidden greeting anchor to keep app.js happy -->
             <div id="dashboardGreeting" style="display:none;"><h2 style="display:none;"></h2><p id="greetingSub" style="display:none;"></p></div>
 
+            <!-- Dashboard Controls: Month Switcher & Quick Add -->
+            <div class="dashboard-controls-bar">
+                <div class="month-nav-pill" id="monthNav">
+                    <button class="month-nav-arrow" id="prevMonth" aria-label="Previous month">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <span class="month-pill-label" id="monthLabel">October 2026</span>
+                    <button class="month-nav-arrow" id="nextMonth" aria-label="Next month">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm dash-add-btn" id="dashAddBtn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Add Expense</span>
+                </button>
+            </div>
+
             <!-- First-time Onboarding Card (shown when 0 transactions) -->
             <div class="welcome-card" id="welcomeCard" style="display:none;">
                 <div class="welcome-badge">GET STARTED</div>
@@ -104,8 +110,8 @@
                 <p>Track expenses effortlessly, see visual breakdowns, and take control of your personal finance.</p>
                 <div class="welcome-actions">
                     <button type="button" class="btn btn-primary btn-sm" id="welcomeAddBtn">+ Add First Expense</button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="welcomeSampleBtn">✨ Explore Demo Data</button>
-                    <button type="button" class="btn btn-ghost btn-sm" id="welcomeTourBtn">📖 Beginner Tour</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="welcomeSampleBtn">Explore Demo Data</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="welcomeTourBtn">Beginner Tour</button>
                 </div>
             </div>
 
@@ -182,7 +188,9 @@
             <div class="card dashboard-budget-card" id="dashboardBudgetCard" style="cursor: pointer;" title="Tap to manage budgets">
                 <div class="card-header" style="margin-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="budget-icon-badge">🎯</span>
+                        <span class="budget-icon-badge">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                        </span>
                         <h3 style="margin: 0; font-size: 0.95rem;">Monthly Budget Target</h3>
                     </div>
                     <span class="badge badge-accent" id="dashBudgetBadge">Active</span>
@@ -421,8 +429,14 @@
                     <h3>Guide &amp; Feedback</h3>
                     <p class="settings-desc">Replay the beginner tour or rate Spending Tracker Pro to support continuous development.</p>
                     <div class="settings-btn-row">
-                        <button type="button" class="btn btn-secondary btn-sm" id="replayGuideBtn">📖 Beginner Tour</button>
-                        <button type="button" class="btn btn-secondary btn-sm" id="openRatingBtn">⭐ Rate App (5 Stars)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="replayGuideBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            <span>Beginner Tour</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="openRatingBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <span>Rate App (5 Stars)</span>
+                        </button>
                     </div>
                 </div>
                 <div class="card settings-card">
@@ -467,10 +481,10 @@
                     <div class="form-group">
                         <div class="type-toggle modern-type-toggle" id="typeToggle">
                             <button type="button" class="type-btn active" data-type="expense">
-                                <span class="type-btn-icon">↓</span> Expense
+                                <span class="type-btn-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></span> Expense
                             </button>
                             <button type="button" class="type-btn" data-type="income">
-                                <span class="type-btn-icon">↑</span> Income
+                                <span class="type-btn-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg></span> Income
                             </button>
                         </div>
                         <input type="hidden" id="txType" value="expense">
@@ -617,42 +631,57 @@
             <div class="onboarding-carousel" id="onboardingCarousel">
                 <!-- Slide 1 -->
                 <div class="onboarding-slide active" data-slide="1">
-                    <div class="onboarding-illustration">✨</div>
+                    <div class="onboarding-illustration">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    </div>
                     <h3 class="onboarding-title" id="onboardingTitle">Welcome to Spending Tracker Pro</h3>
                     <p class="onboarding-text">Your ultimate offline personal finance companion. Fast, 100% private, and built for effortless expense tracking.</p>
                     <div class="onboarding-features-list">
                         <div class="onboarding-feature-item">
-                            <span class="feat-icon">🔒</span>
+                            <span class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                             <span>100% Offline &amp; Private — zero cloud tracking</span>
                         </div>
                         <div class="onboarding-feature-item">
-                            <span class="feat-icon">⚡</span>
+                            <span class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                             <span>Log expenses in under 3 seconds</span>
                         </div>
                         <div class="onboarding-feature-item">
-                            <span class="feat-icon">🎯</span>
-                            <span>Live budget goals &amp; category warnings</span>
+                            <span class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+                            <span>Live budget targets &amp; category warnings</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Slide 2 -->
                 <div class="onboarding-slide" data-slide="2">
-                    <div class="onboarding-illustration">➕</div>
+                    <div class="onboarding-illustration">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    </div>
                     <h3 class="onboarding-title">Quick 1-Tap Expense Logging</h3>
-                    <p class="onboarding-text">Tap the floating <strong>+</strong> button at the bottom anytime. Pick a quick category chip and enter an amount with the rapid increment buttons.</p>
+                    <p class="onboarding-text">Tap the quick add <strong>+</strong> button at the top or on your dashboard. Pick a category chip and adjust amounts with instant increments.</p>
                     <div class="onboarding-preview-box">
-                        <div class="preview-chip active">☕ Cafe</div>
-                        <div class="preview-chip">🛒 Groceries</div>
-                        <div class="preview-chip">🚌 Transit</div>
+                        <div class="preview-chip active">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>
+                            <span>Cafe</span>
+                        </div>
+                        <div class="preview-chip">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/></svg>
+                            <span>Groceries</span>
+                        </div>
+                        <div class="preview-chip">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="14" rx="2"/></svg>
+                            <span>Transit</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Slide 3 -->
                 <div class="onboarding-slide" data-slide="3">
-                    <div class="onboarding-illustration">🎯</div>
+                    <div class="onboarding-illustration">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    </div>
                     <h3 class="onboarding-title">Budgets &amp; Spending Limits</h3>
-                    <p class="onboarding-text">Never overspend again! Visit the dedicated <strong>Budgets</strong> tab in the bottom dock to set monthly limits and monitor real-time progress bars.</p>
+                    <p class="onboarding-text">Stay on track with spending limits! Switch directly to the <strong>Budgets</strong> tab on the taskbar to set category budgets and monitor progress bars.</p>
                     <div class="onboarding-preview-bar">
                         <div class="preview-bar-fill" style="width: 55%;"></div>
                     </div>
@@ -660,11 +689,16 @@
 
                 <!-- Slide 4 -->
                 <div class="onboarding-slide" data-slide="4">
-                    <div class="onboarding-illustration">🚀</div>
+                    <div class="onboarding-illustration">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
                     <h3 class="onboarding-title">Ready to Take Control!</h3>
-                    <p class="onboarding-text">Explore interactive visual charts, filter history, and switch between dark/light themes. Would you like to load demo transactions or start fresh?</p>
+                    <p class="onboarding-text">Explore interactive visual charts, filter history, and switch themes. Would you like to load demo transactions or start fresh?</p>
                     <div class="onboarding-final-actions">
-                        <button type="button" class="btn btn-secondary btn-sm" id="onboardingSampleBtn">✨ Explore Demo Data</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="onboardingSampleBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <span>Explore Demo Data</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -695,60 +729,77 @@
                 </button>
             </div>
             <div class="rating-body">
-                <div class="rating-badge-icon">⭐</div>
+                <div class="rating-badge-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
                 <p class="rating-desc">Your rating helps us keep improving Spending Tracker Pro. How would you rate your experience?</p>
                 <div class="rating-stars-row" id="ratingStarsRow">
-                    <button type="button" class="rating-star-btn selected" data-star="1" aria-label="1 star">★</button>
-                    <button type="button" class="rating-star-btn selected" data-star="2" aria-label="2 stars">★</button>
-                    <button type="button" class="rating-star-btn selected" data-star="3" aria-label="3 stars">★</button>
-                    <button type="button" class="rating-star-btn selected" data-star="4" aria-label="4 stars">★</button>
-                    <button type="button" class="rating-star-btn selected" data-star="5" aria-label="5 stars">★</button>
+                    <button type="button" class="rating-star-btn selected" data-star="1" aria-label="1 star">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </button>
+                    <button type="button" class="rating-star-btn selected" data-star="2" aria-label="2 stars">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </button>
+                    <button type="button" class="rating-star-btn selected" data-star="3" aria-label="3 stars">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </button>
+                    <button type="button" class="rating-star-btn selected" data-star="4" aria-label="4 stars">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </button>
+                    <button type="button" class="rating-star-btn selected" data-star="5" aria-label="5 stars">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </button>
                 </div>
-                <div class="rating-feedback-label" id="ratingFeedbackLabel">⭐⭐⭐⭐⭐ Outstanding! 5 Stars</div>
+                <div class="rating-feedback-label" id="ratingFeedbackLabel">Outstanding - 5 Stars</div>
                 <div class="rating-comment-wrap">
                     <input type="text" id="ratingCommentInput" placeholder="Tell us what you love or want improved... (optional)" class="settings-input" style="font-size: 0.85rem;">
                 </div>
             </div>
             <div class="form-actions" style="margin-top: 18px;">
                 <button type="button" class="btn btn-ghost" id="ratingDismissBtn">Maybe Later</button>
-                <button type="button" class="btn btn-primary" id="ratingSubmitBtn">Submit Rating ⭐</button>
+                <button type="button" class="btn btn-primary" id="ratingSubmitBtn">Submit Rating</button>
             </div>
         </div>
     </div>
 
-    <!-- Telegram-Style Floating Bottom Dock -->
-    <nav class="telegram-bottom-nav" id="telegramBottomNav" aria-label="Main Navigation">
-        <button type="button" class="tg-nav-item active" data-page="dashboard" aria-label="Overview">
-            <div class="tg-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </div>
-            <span class="tg-label">Overview</span>
-        </button>
+    <!-- Windows 11 Taskbar -->
+    <nav class="app-taskbar" id="appTaskbar" aria-label="Main Navigation">
+        <div class="taskbar-inner">
+            <button type="button" class="taskbar-item active" data-page="dashboard" aria-label="Overview" title="Overview">
+                <div class="taskbar-icon">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <span class="taskbar-label">Overview</span>
+            </button>
 
-        <button type="button" class="tg-nav-item" data-page="budgets" aria-label="Budgets">
-            <div class="tg-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            </div>
-            <span class="tg-label">Budgets</span>
-        </button>
+            <button type="button" class="taskbar-item" data-page="budgets" aria-label="Budgets" title="Budgets">
+                <div class="taskbar-icon">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                </div>
+                <span class="taskbar-label">Budgets</span>
+            </button>
 
-        <button type="button" class="tg-action-btn" id="tgAddBtn" aria-label="Add transaction">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
+            <button type="button" class="taskbar-item" data-page="transactions" aria-label="History" title="History">
+                <div class="taskbar-icon">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
+                </div>
+                <span class="taskbar-label">History</span>
+            </button>
 
-        <button type="button" class="tg-nav-item" data-page="transactions" aria-label="History">
-            <div class="tg-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
-            </div>
-            <span class="tg-label">History</span>
-        </button>
+            <button type="button" class="taskbar-item" data-page="analytics" aria-label="Analytics" title="Analytics">
+                <div class="taskbar-icon">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <span class="taskbar-label">Analytics</span>
+            </button>
 
-        <button type="button" class="tg-nav-item" data-page="analytics" aria-label="Analytics">
-            <div class="tg-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            </div>
-            <span class="tg-label">Analytics</span>
-        </button>
+            <button type="button" class="taskbar-item" data-page="settings" aria-label="Settings" title="Settings">
+                <div class="taskbar-icon">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </div>
+                <span class="taskbar-label">Settings</span>
+            </button>
+        </div>
     </nav>
 
     <!-- Toast -->
